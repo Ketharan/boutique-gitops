@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: ProjectReleaseBinding
+metadata:
+  name: merchandising-staging
+  namespace: default
+  labels:
+    openchoreo.dev/project: merchandising
+    openchoreo.dev/environment: staging
+spec:
+  owner:
+    projectName: merchandising
+  environment: staging

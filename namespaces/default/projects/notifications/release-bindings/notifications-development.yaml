@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: ProjectReleaseBinding
+metadata:
+  name: notifications-development
+  namespace: default
+  labels:
+    openchoreo.dev/project: notifications
+    openchoreo.dev/environment: development
+spec:
+  owner:
+    projectName: notifications
+  environment: development

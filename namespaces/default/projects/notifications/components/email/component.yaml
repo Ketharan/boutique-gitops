@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: email
+  namespace: default
+spec:
+  owner:
+    projectName: notifications
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  autoDeploy: true

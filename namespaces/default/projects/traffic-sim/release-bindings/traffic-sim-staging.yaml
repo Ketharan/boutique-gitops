@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: ProjectReleaseBinding
+metadata:
+  name: traffic-sim-staging
+  namespace: default
+  labels:
+    openchoreo.dev/project: traffic-sim
+    openchoreo.dev/environment: staging
+spec:
+  owner:
+    projectName: traffic-sim
+  environment: staging

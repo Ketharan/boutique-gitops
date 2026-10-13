@@ -1,0 +1,16 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: storefront
+  namespace: default
+  labels:
+    openchoreo.dev/name: storefront
+  annotations:
+    openchoreo.dev/display-name: Storefront
+    openchoreo.dev/description: The purchase path - browse, cart, checkout and the services it calls
+spec:
+  deploymentPipelineRef:
+    name: default
+  type:
+    kind: ClusterProjectType
+    name: default

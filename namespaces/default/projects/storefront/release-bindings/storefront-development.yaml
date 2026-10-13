@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: ProjectReleaseBinding
+metadata:
+  name: storefront-development
+  namespace: default
+  labels:
+    openchoreo.dev/project: storefront
+    openchoreo.dev/environment: development
+spec:
+  owner:
+    projectName: storefront
+  environment: development

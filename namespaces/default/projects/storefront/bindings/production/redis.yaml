@@ -1,0 +1,11 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: ResourceReleaseBinding
+metadata:
+  name: redis-production
+  namespace: default
+spec:
+  owner:
+    projectName: storefront
+    resourceName: redis
+  environment: production
+  retainPolicy: Delete
