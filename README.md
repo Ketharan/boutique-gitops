@@ -210,10 +210,22 @@ kubectl apply -R -f namespaces/boutique/              # projects, components, bi
    at organisation visibility as well as `external` — a combination not verified here, which is
    why it is a plain environment variable for now.
 
-2. **Component type names assume the `deployment/*` scheme** (`deployment/service`,
-   `deployment/web-application`, `deployment/worker`) as used on `openchoreo/openchoreo` main.
-   Older installs name them `service`, `web-application`, `worker`. Check with
-   `kubectl get clustercomponenttypes` and adjust if they differ.
+2. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
+   but it is NOT universal across 1.3.1 installs.** Verified both ways:
+
+   - The read-only showroom's own thirteen components reference exactly this scheme —
+     `deployment/service` x7, `deployment/web-application` x4, `deployment/worker`,
+     `cronjob/scheduled-task` (`read-only-setup/demo/projects/*/components/*.yaml`) — and that
+     estate is live on 1.3.1, so these names resolve there.
+   - A stock 1.3.1 k3d install ships the **bare** names instead: `service`, `web-application`,
+     `worker`, `scheduled-task`, and nothing called `deployment/*`.
+
+   So the type vocabulary is a property of the install, not of the version. Check the target
+   with `kubectl get clustercomponenttypes` and adjust if it differs — and note the corollary
+   for validation: **a reference cluster is not a valid venue for checking that type references
+   resolve**, only the target is. A server-side dry-run elsewhere validates CRD schemas, which
+   is a different question: a `componentType` naming a type that does not exist is admitted and
+   fails later at reconcile.
 
 3. **Redis binds in all five environments here**, where the upstream sample binds development
    only. Drop the `bindings/<env>/` directories you do not want. The `Resource` is named `redis`

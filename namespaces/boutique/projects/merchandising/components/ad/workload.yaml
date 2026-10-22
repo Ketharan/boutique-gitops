@@ -1,3 +1,17 @@
+# `namespace`, not `internal`. Both are legal in the published-endpoint enum
+# (project|namespace|internal|external), so the API server accepts either and a
+# dry-run proves nothing here — unlike the four dependency refs that consume these,
+# where the enum is project|namespace only and namespace is forced.
+#
+# namespace is "accessible across all projects in the same namespace and
+# environment"; internal is "across all namespaces in the deployment"
+# (api/v1alpha1/workload_types.go:107-111). This endpoint needs the first: its
+# callers are in other boutique projects, inside the one org unit. internal would
+# additionally expose it to `growth` and `platform`, which is wrong for a scenario
+# whose point is project isolation, and would imply reach on the cell diagram that
+# the design does not intend. A provider must also be at least as visible as the
+# dependency consuming it, and that side is pinned to namespace — so internal here
+# would be incoherent even though it validates.
 apiVersion: openchoreo.dev/v1alpha1
 kind: Workload
 metadata:
