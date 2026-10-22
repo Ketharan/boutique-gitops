@@ -1,0 +1,41 @@
+# NOT APPLIED. This file sits under pending/ because the thing it describes does
+# not exist yet — see pending/README.md for what unblocks it and the exact
+# `git mv` that activates it. No Flux Kustomization points at pending/.
+#
+# Blocked on two things, neither of which is configuration:
+#   1. The image. Upstream v0.10.5 ships NO shoppingassistantservice image —
+#      verified: release/kubernetes-manifests.yaml at that tag contains no such
+#      Deployment, only the frontend's reference to it. The source is
+#      src/shoppingassistantservice (Python, ~120 lines) and is wired to Google
+#      Cloud; GCP-DEMO-IMPLEMENTATION.md 3.3 lists the four substitutions needed
+#      (PGVector, gateway embeddings, OpenAI-compatible client, Resource outputs).
+#      GCP-DEMO-IMPLEMENTATION.md 0.2 — fork it, or write the simpler NL search —
+#      is still an open decision.
+#   2. The `ai-llm-routing` ClusterTrait. It ships with the AI gateway module,
+#      not with OpenChoreo 1.3.1 (verified: neither AI trait appears anywhere in
+#      openchoreo/openchoreo@v1.3.1 install/ or samples/). AI-GATEWAY-INSTALL-PLAN.md
+#      is "Nothing applied. Awaiting approval." Its step 4 also has to patch the
+#      `service` ClusterComponentType's allowedTraits — without that the trait
+#      exists but no component may use it, the same allowedTraits gate that
+#      rejects an unlisted workflow.
+#
+# The trait goes ON THIS COMPONENT, not on a gateway component: the AI gateway is
+# platform infrastructure outside all five projects. Add, once the module is in:
+#
+#   traits:
+#     - kind: ClusterTrait
+#       name: ai-llm-routing
+#       instanceName: shoppingassistant-llm-routing
+#       parameters: {}        # guardrails, rate limits, provider — per the module
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: shoppingassistant
+  namespace: boutique
+spec:
+  owner:
+    projectName: merchandising
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  autoDeploy: true

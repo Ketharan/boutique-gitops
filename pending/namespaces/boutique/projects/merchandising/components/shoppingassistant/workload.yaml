@@ -1,0 +1,36 @@
+# NOT APPLIED. This file sits under pending/ because the thing it describes does
+# not exist yet — see pending/README.md for what unblocks it and the exact
+# `git mv` that activates it. No Flux Kustomization points at pending/.
+#
+# Port 80 is upstream's, not a guess: the frontend in release/kubernetes-manifests.yaml
+# at v0.10.5 sets SHOPPING_ASSISTANT_SERVICE_ADDR to "shoppingassistantservice:80".
+#
+# Visibility is `organization`, not `project`: the only caller is `frontend`, which
+# lives in storefront. That makes this a FIFTH cross-project edge — README.md's
+# "four cross-project edges" needs updating when this activates.
+#
+# The image must come from a build, not a registry pin. Once the fork exists, add a
+# `workflow:` block to component.yaml the way the showroom's from-source components
+# do — read-only-setup/demo/projects/doclet/components/document.yaml:34-43 is the
+# reference. Which `kind` it takes depends on the org unit: ClusterWorkflow for the
+# company-wide planes, namespaced Workflow for an org unit with private planes.
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: shoppingassistant-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: shoppingassistant
+    projectName: merchandising
+  endpoints:
+    http:
+      type: HTTP
+      port: 80
+      visibility:
+      - organization
+  container:
+    image: REPLACE-ME/shoppingassistantservice:REPLACE-ME
+    env:
+    - key: PORT
+      value: '80'

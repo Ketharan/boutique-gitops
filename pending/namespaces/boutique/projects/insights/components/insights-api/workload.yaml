@@ -1,0 +1,29 @@
+# NOT APPLIED. This file sits under pending/ because the thing it describes does
+# not exist yet — see pending/README.md for what unblocks it and the exact
+# `git mv` that activates it. No Flux Kustomization points at pending/.
+#
+# `project` visibility: the only caller is business-portal, in this same project.
+# No cross-project endpoint dependencies — reading across the estate happens
+# through MCP tools, not by calling the other projects' services.
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: insights-api-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: insights-api
+    projectName: insights
+  endpoints:
+    http:
+      type: HTTP
+      port: 8080
+      visibility:
+      - project
+  container:
+    image: REPLACE-ME/insights-api:REPLACE-ME
+    env:
+    - key: PORT
+      value: '8080'
+    # MCP_GATEWAY_URL is supplied by the ai-mcp-federation trait once the AI
+    # gateway module is installed; do not hardcode it here.

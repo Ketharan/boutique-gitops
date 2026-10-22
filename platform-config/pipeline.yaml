@@ -1,0 +1,33 @@
+# One gate per region, then each gate to its own production. The two regions are
+# promoted independently and never from each other — a lockstep fan-out is
+# indistinguishable from a single environment.
+apiVersion: openchoreo.dev/v1alpha1
+kind: DeploymentPipeline
+metadata:
+  name: boutique
+  namespace: boutique
+  annotations:
+    openchoreo.dev/display-name: Boutique delivery
+    openchoreo.dev/description: Development, a gate per region, then two independent regional productions
+spec:
+  promotionPaths:
+    - sourceEnvironmentRef:
+        kind: Environment
+        name: development
+      targetEnvironmentRefs:
+        - kind: Environment
+          name: staging-eu
+        - kind: Environment
+          name: staging-us
+    - sourceEnvironmentRef:
+        kind: Environment
+        name: staging-eu
+      targetEnvironmentRefs:
+        - kind: Environment
+          name: production-eu
+    - sourceEnvironmentRef:
+        kind: Environment
+        name: staging-us
+      targetEnvironmentRefs:
+        - kind: Environment
+          name: production-us

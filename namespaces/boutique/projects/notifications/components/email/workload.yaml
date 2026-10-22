@@ -1,0 +1,22 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: email-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: email
+    projectName: notifications
+  endpoints:
+    grpc:
+      type: gRPC
+      port: 5000
+      visibility:
+      - organization
+  container:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/emailservice:v0.10.5
+    env:
+    - key: DISABLE_PROFILER
+      value: '1'
+    - key: PORT
+      value: '5000'

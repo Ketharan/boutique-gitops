@@ -1,0 +1,30 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: recommendation-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: recommendation
+    projectName: merchandising
+  endpoints:
+    grpc:
+      type: gRPC
+      port: 8080
+      visibility:
+      - organization
+  dependencies:
+    endpoints:
+    - project: storefront
+      component: productcatalog
+      name: grpc
+      visibility: organization
+      envBindings:
+        address: PRODUCT_CATALOG_SERVICE_ADDR
+  container:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/recommendationservice:v0.10.5
+    env:
+    - key: DISABLE_PROFILER
+      value: '1'
+    - key: PORT
+      value: '8080'

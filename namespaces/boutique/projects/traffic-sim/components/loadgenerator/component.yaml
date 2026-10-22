@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: loadgenerator
+  namespace: boutique
+spec:
+  owner:
+    projectName: traffic-sim
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/worker
+  autoDeploy: true

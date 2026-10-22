@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: recommendation
+  namespace: boutique
+spec:
+  owner:
+    projectName: merchandising
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  autoDeploy: true

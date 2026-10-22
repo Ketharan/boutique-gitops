@@ -1,0 +1,16 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: notifications
+  namespace: boutique
+  labels:
+    openchoreo.dev/name: notifications
+  annotations:
+    openchoreo.dev/display-name: Notifications
+    openchoreo.dev/description: Outbound messaging, shared by other projects
+spec:
+  deploymentPipelineRef:
+    name: boutique
+  type:
+    kind: ClusterProjectType
+    name: default

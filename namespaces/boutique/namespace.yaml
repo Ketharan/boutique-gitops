@@ -1,0 +1,22 @@
+# The org unit. Its own namespace rather than `default`, for a reason found by
+# dry-running these manifests against a 1.3.1 cluster: Environment.spec.dataPlaneRef
+# is immutable once set (api/v1alpha1/environment_types.go:14), and every
+# quick-start install already has development / staging / production Environments
+# in `default` — so applying this repo's `development` there is rejected outright
+# and Flux would fail on that object indefinitely.
+#
+# It is also how the showroom models org units (growth, platform), and it is where
+# the scenario's users and teams belong.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: boutique
+  labels:
+    openchoreo.dev/name: boutique
+    # The portal enumerates org units from the control-plane API's /namespaces
+    # endpoint, which selects on this label. An unlabelled org unit reconciles
+    # fine and shows up nowhere in the catalog.
+    openchoreo.dev/control-plane: 'true'
+  annotations:
+    openchoreo.dev/display-name: Online Boutique
+    openchoreo.dev/description: The Online Boutique estate - storefront, merchandising, notifications, insights and the traffic simulator

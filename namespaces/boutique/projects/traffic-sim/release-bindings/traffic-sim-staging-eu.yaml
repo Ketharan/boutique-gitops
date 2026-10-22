@@ -1,0 +1,17 @@
+# No `spec.projectRelease`. The pin is what promotion advances, and the CRD is
+# explicit that it is nobody else's to reconcile: "A set pin is never touched by
+# controllers — advancing it is left to whoever drives promotion (occ, GitOps,
+# manual kubectl edit)." Commit a value here and Flux owns the field and reverts
+# every promotion on its next reconcile.
+apiVersion: openchoreo.dev/v1alpha1
+kind: ProjectReleaseBinding
+metadata:
+  name: traffic-sim-staging-eu
+  namespace: boutique
+  labels:
+    openchoreo.dev/project: traffic-sim
+    openchoreo.dev/environment: staging-eu
+spec:
+  owner:
+    projectName: traffic-sim
+  environment: staging-eu

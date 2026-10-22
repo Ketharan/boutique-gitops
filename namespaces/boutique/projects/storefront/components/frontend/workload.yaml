@@ -1,0 +1,80 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: frontend-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: frontend
+    projectName: storefront
+  endpoints:
+    http:
+      type: HTTP
+      port: 8080
+      visibility:
+      - external
+  dependencies:
+    endpoints:
+    - project: merchandising
+      component: ad
+      name: grpc
+      visibility: organization
+      envBindings:
+        address: AD_SERVICE_ADDR
+    - project: storefront
+      component: cart
+      name: grpc
+      visibility: project
+      envBindings:
+        address: CART_SERVICE_ADDR
+    - project: storefront
+      component: checkout
+      name: grpc
+      visibility: project
+      envBindings:
+        address: CHECKOUT_SERVICE_ADDR
+    - project: storefront
+      component: currency
+      name: grpc
+      visibility: project
+      envBindings:
+        address: CURRENCY_SERVICE_ADDR
+    - project: storefront
+      component: payment
+      name: grpc
+      visibility: project
+      envBindings:
+        address: PAYMENT_SERVICE_ADDR
+    - project: merchandising
+      component: recommendation
+      name: grpc
+      visibility: organization
+      envBindings:
+        address: RECOMMENDATION_SERVICE_ADDR
+    - project: storefront
+      component: shipping
+      name: grpc
+      visibility: project
+      envBindings:
+        address: SHIPPING_SERVICE_ADDR
+    - project: storefront
+      component: productcatalog
+      name: grpc
+      visibility: project
+      envBindings:
+        address: PRODUCT_CATALOG_SERVICE_ADDR
+  container:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/frontend:v0.10.5
+    env:
+    - key: DISABLE_PROFILER
+      value: '1'
+    - key: PORT
+      value: '8080'
+    - key: SHOPPING_ASSISTANT_SERVICE_ADDR
+      value: '-'
+    - key: CYMBAL_BRANDING
+      value: 'false'
+    - key: FRONTEND_MESSAGE
+      value: Welcome to the Microservices Demo!
+    - key: ENABLE_ASSISTANT
+      value: 'false'

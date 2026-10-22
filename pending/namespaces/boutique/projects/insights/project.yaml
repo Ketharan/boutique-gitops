@@ -1,0 +1,26 @@
+# NOT APPLIED. This file sits under pending/ because the thing it describes does
+# not exist yet — see pending/README.md for what unblocks it and the exact
+# `git mv` that activates it. No Flux Kustomization points at pending/.
+#
+# The fifth project. Its own project rather than a component of storefront or
+# merchandising because the questions it answers span both, so no single domain
+# owns them (GCP-DEMO-IMPLEMENTATION.md 4.1).
+#
+# Blocked on new code: both components are software that does not exist yet.
+# Nothing upstream corresponds to them.
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: insights
+  namespace: boutique
+  labels:
+    openchoreo.dev/name: insights
+  annotations:
+    openchoreo.dev/display-name: Insights
+    openchoreo.dev/description: Business-facing questions answered by reading across the estate
+spec:
+  deploymentPipelineRef:
+    name: boutique
+  type:
+    kind: ClusterProjectType
+    name: default

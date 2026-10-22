@@ -1,0 +1,11 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Resource
+metadata:
+  name: redis
+  namespace: boutique
+spec:
+  owner:
+    projectName: storefront
+  type:
+    kind: ClusterResourceType
+    name: valkey

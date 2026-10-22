@@ -1,0 +1,30 @@
+# NOT APPLIED. This file sits under pending/ because the thing it describes does
+# not exist yet — see pending/README.md for what unblocks it and the exact
+# `git mv` that activates it. No Flux Kustomization points at pending/.
+#
+# "works out what to read, composes the answer" — GCP-DEMO-IMPLEMENTATION.md 4.1.
+# The diagram's `a question about trends` edge runs from here to the AI Gateway.
+#
+# Blocked on the same AI gateway module as the shopping assistant, for the other
+# trait: `ai-mcp-federation`. Per 4.2 this component reads through MCP tools and
+# does NOT query databases directly — OpenChoreo's observer MCP server (17 tools)
+# plus the catalog's own read API, telemetry-only to start. Add, once the module
+# is in, along with MCP_GATEWAY_URL in the workload:
+#
+#   traits:
+#     - kind: ClusterTrait
+#       name: ai-mcp-federation
+#       instanceName: insights-api-mcp-federation
+#       parameters: {}
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: insights-api
+  namespace: boutique
+spec:
+  owner:
+    projectName: insights
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  autoDeploy: true

@@ -1,0 +1,12 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: payment
+  namespace: boutique
+spec:
+  owner:
+    projectName: storefront
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  autoDeploy: true

@@ -1,0 +1,13 @@
+# `spec.resourceRelease` intentionally unset — same rule as the project
+# bindings: the pin belongs to whoever drives promotion, not to git.
+apiVersion: openchoreo.dev/v1alpha1
+kind: ResourceReleaseBinding
+metadata:
+  name: redis-production-us
+  namespace: boutique
+spec:
+  owner:
+    projectName: storefront
+    resourceName: redis
+  environment: production-us
+  retainPolicy: Delete

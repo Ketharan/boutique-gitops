@@ -1,0 +1,58 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: checkout-workload
+  namespace: boutique
+spec:
+  owner:
+    componentName: checkout
+    projectName: storefront
+  endpoints:
+    grpc:
+      type: gRPC
+      port: 5050
+  dependencies:
+    endpoints:
+    - project: storefront
+      component: productcatalog
+      name: grpc
+      visibility: project
+      envBindings:
+        address: PRODUCT_CATALOG_SERVICE_ADDR
+    - project: storefront
+      component: shipping
+      name: grpc
+      visibility: project
+      envBindings:
+        address: SHIPPING_SERVICE_ADDR
+    - project: storefront
+      component: payment
+      name: grpc
+      visibility: project
+      envBindings:
+        address: PAYMENT_SERVICE_ADDR
+    - project: notifications
+      component: email
+      name: grpc
+      visibility: organization
+      envBindings:
+        address: EMAIL_SERVICE_ADDR
+    - project: storefront
+      component: currency
+      name: grpc
+      visibility: project
+      envBindings:
+        address: CURRENCY_SERVICE_ADDR
+    - project: storefront
+      component: cart
+      name: grpc
+      visibility: project
+      envBindings:
+        address: CART_SERVICE_ADDR
+  container:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/checkoutservice:v0.10.5
+    env:
+    - key: DISABLE_PROFILER
+      value: '1'
+    - key: PORT
+      value: '5050'

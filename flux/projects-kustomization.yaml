@@ -5,11 +5,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./namespaces/default/projects
+  path: ./namespaces/boutique/projects
   prune: true
-  targetNamespace: default
+  targetNamespace: boutique
   sourceRef:
     kind: GitRepository
     name: boutique-gitops
   dependsOn:
-  - name: boutique-namespaces
+  - name: boutique-platform-config

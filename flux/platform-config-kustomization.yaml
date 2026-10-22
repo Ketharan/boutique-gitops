@@ -1,0 +1,17 @@
+# Environments and the promotion graph must exist before any binding names them:
+# a ProjectReleaseBinding referencing an Environment that is not there does not
+# resolve. Hence the dependsOn chain namespaces -> platform-config -> projects.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: boutique-platform-config
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./platform-config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: boutique-gitops
+  dependsOn:
+  - name: boutique-namespaces

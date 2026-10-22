@@ -1,0 +1,16 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: traffic-sim
+  namespace: boutique
+  labels:
+    openchoreo.dev/name: traffic-sim
+  annotations:
+    openchoreo.dev/display-name: Traffic Simulator
+    openchoreo.dev/description: Synthetic shoppers, so the estate is never idle
+spec:
+  deploymentPipelineRef:
+    name: boutique
+  type:
+    kind: ClusterProjectType
+    name: default

@@ -1,0 +1,16 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: merchandising
+  namespace: boutique
+  labels:
+    openchoreo.dev/name: merchandising
+  annotations:
+    openchoreo.dev/display-name: Merchandising
+    openchoreo.dev/description: 'What to show a shopper: ads, recommendations and the shopping assistant'
+spec:
+  deploymentPipelineRef:
+    name: boutique
+  type:
+    kind: ClusterProjectType
+    name: default
