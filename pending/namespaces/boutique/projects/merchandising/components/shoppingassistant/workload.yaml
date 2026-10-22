@@ -5,9 +5,11 @@
 # Port 80 is upstream's, not a guess: the frontend in release/kubernetes-manifests.yaml
 # at v0.10.5 sets SHOPPING_ASSISTANT_SERVICE_ADDR to "shoppingassistantservice:80".
 #
-# Visibility is `organization`, not `project`: the only caller is `frontend`, which
-# lives in storefront. That makes this a FIFTH cross-project edge — README.md's
-# "four cross-project edges" needs updating when this activates.
+# Visibility is `namespace`, not `project`: the only caller is `frontend`, which
+# lives in storefront, and `namespace` is what 1.3.1 calls "accessible across all
+# projects in the same namespace" (workload_types.go:107-108). That makes this a
+# FIFTH cross-project edge — README.md's "four cross-project edges" needs updating
+# when this activates.
 #
 # The image must come from a build, not a registry pin. Once the fork exists, add a
 # `workflow:` block to component.yaml the way the showroom's from-source components
@@ -28,7 +30,7 @@ spec:
       type: HTTP
       port: 80
       visibility:
-      - organization
+      - namespace
   container:
     image: REPLACE-ME/shoppingassistantservice:REPLACE-ME
     env:

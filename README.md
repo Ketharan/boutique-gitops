@@ -71,7 +71,18 @@ checkout       (storefront)    -> email           (notifications)
 recommendation (merchandising) -> productcatalog  (storefront)
 ```
 
-Those four endpoints publish `visibility: [organization]`; everything else stays project-private.
+Those four endpoints publish `visibility: [namespace]`; everything else stays project-private.
+
+**On the vocabulary**, because the obvious word is the wrong one. OpenChoreo 1.3.1 spells
+inter-project reachability `namespace` on the spec side — *"accessible across all projects in the
+same namespace and environment"* (`api/v1alpha1/workload_types.go:107-108`). The published
+endpoint enum is `project;namespace;internal;external` and the consumed dependency enum is
+narrower still, `project;namespace` (`:100`, `:181`). `organization` **is** a real term in the
+API, but it lives on the *status* side — `EndpointStatus.Organization`, carrying an upstream
+`TODO: organization endpoint = inter-project endpoint. This is not being used. Refactor later`
+(`api/v1alpha1/types.go:12,24`). It is the semantically right word on the wrong side of the API,
+which is an easy trap: every boutique project co-resides in the one `boutique` org-unit
+namespace, so `namespace` is both the accepted value and the accurate one.
 
 **`productcatalog` is the one people miss.** It lives in `storefront` and is called *into* that
 project from `merchandising`, so the organisation-visible service is not only in the "shared"

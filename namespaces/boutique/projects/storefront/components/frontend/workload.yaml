@@ -18,7 +18,7 @@ spec:
     - project: merchandising
       component: ad
       name: grpc
-      visibility: organization
+      visibility: namespace
       envBindings:
         address: AD_SERVICE_ADDR
     - project: storefront
@@ -48,7 +48,7 @@ spec:
     - project: merchandising
       component: recommendation
       name: grpc
-      visibility: organization
+      visibility: namespace
       envBindings:
         address: RECOMMENDATION_SERVICE_ADDR
     - project: storefront

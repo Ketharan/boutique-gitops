@@ -12,7 +12,7 @@ spec:
       type: gRPC
       port: 5000
       visibility:
-      - organization
+      - namespace
   container:
     image: us-central1-docker.pkg.dev/google-samples/microservices-demo/emailservice:v0.10.5
     env:

@@ -34,7 +34,7 @@ spec:
     - project: notifications
       component: email
       name: grpc
-      visibility: organization
+      visibility: namespace
       envBindings:
         address: EMAIL_SERVICE_ADDR
     - project: storefront

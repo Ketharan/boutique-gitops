@@ -12,13 +12,13 @@ spec:
       type: gRPC
       port: 8080
       visibility:
-      - organization
+      - namespace
   dependencies:
     endpoints:
     - project: storefront
       component: productcatalog
       name: grpc
-      visibility: organization
+      visibility: namespace
       envBindings:
         address: PRODUCT_CATALOG_SERVICE_ADDR
   container:
