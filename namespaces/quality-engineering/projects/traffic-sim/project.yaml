@@ -2,7 +2,7 @@ apiVersion: openchoreo.dev/v1alpha1
 kind: Project
 metadata:
   name: traffic-sim
-  namespace: boutique
+  namespace: quality-engineering
   labels:
     openchoreo.dev/name: traffic-sim
   annotations:
@@ -10,7 +10,7 @@ metadata:
     openchoreo.dev/description: Synthetic shoppers, so the estate is never idle
 spec:
   deploymentPipelineRef:
-    name: boutique
+    name: quality-engineering
   type:
     kind: ClusterProjectType
     name: default

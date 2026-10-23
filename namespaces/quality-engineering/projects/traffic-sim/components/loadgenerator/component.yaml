@@ -2,7 +2,7 @@ apiVersion: openchoreo.dev/v1alpha1
 kind: Component
 metadata:
   name: loadgenerator
-  namespace: boutique
+  namespace: quality-engineering
 spec:
   owner:
     projectName: traffic-sim

@@ -1,0 +1,21 @@
+# A second org unit, beside `boutique`. The traffic simulator is a department in
+# its own right rather than a project of the storefront estate it drives.
+#
+# It needs its OWN Environment and DeploymentPipeline objects, not boutique's:
+# ProjectReleaseBinding.spec.environment is a bare name with no namespace field
+# (api/v1alpha1/projectreleasebinding_types.go:25-29) and Environment is
+# namespace-scoped (environment_types.go:34), so a binding here can only resolve
+# an Environment living here. Same rule for deploymentPipelineRef. The objects
+# are separate; the names, the planes and the promotion graph mirror boutique.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quality-engineering
+  labels:
+    openchoreo.dev/name: quality-engineering
+    # The portal enumerates org units from the control-plane API's /namespaces
+    # endpoint, which selects on this label.
+    openchoreo.dev/control-plane: 'true'
+  annotations:
+    openchoreo.dev/display-name: Quality Engineering
+    openchoreo.dev/description: Synthetic traffic and load generation against the Online Boutique estate

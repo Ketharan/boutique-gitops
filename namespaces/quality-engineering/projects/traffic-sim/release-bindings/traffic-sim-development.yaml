@@ -3,15 +3,18 @@
 # controllers — advancing it is left to whoever drives promotion (occ, GitOps,
 # manual kubectl edit)." Commit a value here and Flux owns the field and reverts
 # every promotion on its next reconcile.
+#
+# `spec.environment` is immutable once set, so these five names are a one-shot
+# decision.
 apiVersion: openchoreo.dev/v1alpha1
 kind: ProjectReleaseBinding
 metadata:
-  name: traffic-sim-staging-eu
-  namespace: boutique
+  name: traffic-sim-development
+  namespace: quality-engineering
   labels:
     openchoreo.dev/project: traffic-sim
-    openchoreo.dev/environment: staging-eu
+    openchoreo.dev/environment: development
 spec:
   owner:
     projectName: traffic-sim
-  environment: staging-eu
+  environment: development

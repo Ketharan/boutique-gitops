@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - environments.yaml
 - pipeline.yaml
+- quality-engineering.yaml

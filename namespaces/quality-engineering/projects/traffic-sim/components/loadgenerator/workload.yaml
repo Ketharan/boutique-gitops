@@ -2,7 +2,7 @@ apiVersion: openchoreo.dev/v1alpha1
 kind: Workload
 metadata:
   name: loadgenerator-workload
-  namespace: boutique
+  namespace: quality-engineering
 spec:
   owner:
     componentName: loadgenerator

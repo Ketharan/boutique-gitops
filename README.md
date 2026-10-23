@@ -1,11 +1,14 @@
 # Online Boutique on OpenChoreo — GitOps repository
 
-The GCP microservices demo split into **five projects** with real cross-project dependencies,
-laid out for Flux CD, promoted through **five environments across two regions**. Phase 1 of
-`GCP-DEMO-IMPLEMENTATION.md`, plus the topology decided in
+The GCP microservices demo split into **five projects across two org units**, with real
+cross-project dependencies, laid out for Flux CD and promoted through **five environments across
+two regions**. Phase 1 of `GCP-DEMO-IMPLEMENTATION.md`, plus the topology decided in
 `subtasks/demo_artifact_prep/DEPLOYMENT-ARCHITECTURE.md`.
 
-Four projects are live here. The fifth (`insights`) and one component of `merchandising`
+`boutique` holds the storefront estate. `quality-engineering` holds the traffic simulator that
+drives it, as a department in its own right rather than a project of the estate it loads.
+
+Four projects are live. The fifth (`insights`) and one component of `merchandising`
 (`shoppingassistant`) are scaffolded under `pending/` and deliberately not applied — they are
 blocked on images and on the AI gateway module, not on configuration. See `pending/README.md`.
 
@@ -19,7 +22,7 @@ Follows the convention in [`openchoreo/sample-gitops`](https://github.com/opench
 
 ```
 flux/                                  GitRepository + Kustomizations
-platform-config/                       Environments + the DeploymentPipeline
+platform-config/                       Environments + DeploymentPipeline, one set per org unit
 namespaces/<ns>/
   namespace.yaml
   projects/<project>/
@@ -54,7 +57,7 @@ release is live where** — deployed versions are cluster state.
 | `storefront` | frontend, checkout, productcatalog, cart, currency, payment, shipping, **redis** | The purchase path. Both hubs and everything they call repeatedly stay together. |
 | `merchandising` | ad, recommendation | Called only by `frontend`. |
 | `notifications` | email | Called only by `checkout`. |
-| `traffic-sim` | loadgenerator | Keeps the estate from being idle. |
+| `traffic-sim` | loadgenerator | Keeps the estate from being idle. Lives in the **`quality-engineering`** org unit, not `boutique`. |
 | `insights` | business-portal, insights-api | Reads across storefront and merchandising, so no single domain owns it. **Scaffolded in `pending/`.** |
 
 The split minimises boundary crossings rather than maximising domain purity. A storefront /
@@ -166,7 +169,7 @@ the plane reconciles cleanly while never connecting. Set `planeID` to whatever t
 charts were configured with (`default` on the showroom) and check
 `status.agentConnection.connected`.
 
-## The org unit is `boutique`, not `default`
+## Two org units, and why neither is `default`
 
 This repo was laid out in namespace `default` and moved, for a reason worth knowing before anyone
 relocates it back. `Environment.spec.dataPlaneRef` is **immutable once set** — upstream, at
@@ -178,8 +181,17 @@ would then fail on that one object indefinitely, and repairing it in place means
 Environment, which cascades to everything bound to it.
 
 Its own org unit is also how the showroom models them (`growth`, `platform`), and it is where the
-scenario's users and teams belong. The two regional `DataPlane`s are derived into this namespace
-rather than `default`; nothing else about the plane decision changes.
+scenario's users and teams belong.
+
+`quality-engineering` is the second, holding the traffic simulator. It carries **its own five
+`Environment` objects and its own `DeploymentPipeline`**, with the same names and the same
+cluster planes as `boutique`'s. That is not duplication for its own sake: there is no
+cross-namespace reference available. `ProjectReleaseBinding.spec.environment` is a bare name with
+no namespace field (`api/v1alpha1/projectreleasebinding_types.go:25-29`) and `Environment` is
+namespace-scoped (`environment_types.go:34`), so a binding can only resolve an `Environment` in
+its own namespace. `deploymentPipelineRef` works the same way, and there is no
+`ClusterDeploymentPipeline`. Separate objects, mirrored names. Note that `spec.environment` is
+immutable once set, so those five names are a one-shot decision.
 
 ## Applying it
 
@@ -190,7 +202,9 @@ kubectl apply -f flux/
 ```
 
 Ordering is handled, and it matters: `boutique-namespaces` -> `boutique-platform-config` ->
-`boutique-projects`.
+`boutique-projects` and `quality-engineering-projects`. The two projects Kustomizations are
+separate because each org unit's tree is applied into its own namespace, so one `path` and one
+`targetNamespace` cannot cover both.
 
 > **Decided 2026-10-22: Flux owns this layer on the showroom.** The cluster had no Flux runtime —
 > its content was delivered imperatively by `read-only-setup/scripts/50-projects.sh`, which walks a
@@ -209,9 +223,10 @@ exist yet does not resolve, so the environments have to land first.
 **Without Flux** — this is also the path the showroom uses today:
 
 ```bash
-kubectl apply -f namespaces/boutique/namespace.yaml   # the org unit
-kubectl apply -k platform-config/                     # environments + pipeline
-kubectl apply -R -f namespaces/boutique/              # projects, components, bindings
+kubectl apply -k namespaces/                          # both org-unit namespaces
+kubectl apply -k platform-config/                     # environments + pipelines, both sets
+kubectl apply -R -f namespaces/boutique/
+kubectl apply -R -f namespaces/quality-engineering/
 ```
 
 `-k` rather than `-R -f` for `platform-config/`, because that directory carries a
@@ -219,10 +234,14 @@ kubectl apply -R -f namespaces/boutique/              # projects, components, bi
 
 ## Before it will work
 
-1. **`FRONTEND_ADDR` on the load generator is a placeholder.** It needs the storefront front
-   end's address. Declaring it as a proper dependency instead would require `frontend` to publish
-   at organisation visibility as well as `external` — a combination not verified here, which is
-   why it is a plain environment variable for now.
+1. **`FRONTEND_ADDR` on the load generator is a placeholder, and now a cross-namespace one.**
+   It needs the storefront front end's address. Declaring it as a proper dependency was already
+   awkward; since the simulator moved to `quality-engineering` it is not possible at all at
+   `namespace` visibility, which reaches other projects in the *same* namespace and no further.
+   Dependency references carry no namespace either. Reaching it from another org unit would need
+   `frontend` published at `internal` or `external` visibility, and `external` is what it already
+   has, so the practical options are to point this variable at the public front door or to add
+   `internal`. It stays a plain environment variable until that is decided.
 
 2. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
    but it is NOT universal across 1.3.1 installs.** Verified both ways:

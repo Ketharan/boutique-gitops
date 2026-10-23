@@ -1,0 +1,17 @@
+# A second projects Kustomization: each org unit's tree is applied into its own
+# namespace, so one path and one targetNamespace cannot cover both.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: quality-engineering-projects
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./namespaces/quality-engineering/projects
+  prune: true
+  targetNamespace: quality-engineering
+  sourceRef:
+    kind: GitRepository
+    name: boutique-gitops
+  dependsOn:
+  - name: boutique-platform-config
