@@ -10,3 +10,21 @@ spec:
     kind: ClusterComponentType
     name: deployment/service
   autoDeploy: true
+  # Built from source, not a published tag. ClusterWorkflow rather than a namespaced
+  # Workflow because this org unit uses the company-wide planes, which keeps every
+  # reference cluster-scoped and the repository clone-able.
+  workflow:
+    kind: ClusterWorkflow
+    name: dockerfile-builder
+    parameters:
+      repository:
+        url: "https://github.com/Ketharan/microservices-demo"
+        revision:
+          branch: "main"
+        appPath: "/src"
+      # cartservice is .NET and nests a level deeper than the other ten:
+      # cartservice.sln sits at the service root with src/ and tests/ beneath it,
+      # so the Dockerfile is at /src/cartservice/src, not /src/cartservice.
+      docker:
+        context: "/src/cartservice/src"
+        filePath: "/src/cartservice/src/Dockerfile"
