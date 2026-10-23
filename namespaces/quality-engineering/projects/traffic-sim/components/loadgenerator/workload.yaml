@@ -10,7 +10,27 @@ spec:
   container:
     image: us-central1-docker.pkg.dev/google-samples/microservices-demo/loadgenerator:v0.10.5
     env:
+    # The simulator drives the storefront from its own org unit, THROUGH THE
+    # DATA-PLANE GATEWAY. That is the only route available to it: `namespace`
+    # visibility reaches other projects in the same namespace and no further, and
+    # a dependency entry cannot name another namespace (WorkloadConnection has
+    # Project, Component, Name, Visibility and EnvBindings, and no namespace
+    # field — api/v1alpha1/workload_types.go:162-187). So this stays a plain
+    # variable rather than a dependency, by necessity rather than by choice.
+    #
+    # The value is the frontend's gateway host:port FOR THIS ENVIRONMENT. It is
+    # not knowable here: it is published on the frontend's ReleaseBinding status
+    # under externalURLs once the cell exists, and it differs per environment.
+    # The showroom's own traffic driver reads it the same way
+    # (read-only-setup/demo/estate-traffic.yaml:110-123). To read one:
+    #
+    #   kubectl get releasebinding -n boutique \
+    #     -o jsonpath='{range .items[*]}{.spec.environment}{"\t"}{.status..externalURLs..host}{"\n"}{end}'
+    #
+    # Gateway-routed does NOT mean internet-reachable: *.openchoreoapis.localhost
+    # is not publicly resolvable, and CoreDNS rewrites the suffix to the
+    # data-plane gateway inside the cluster. App endpoints stay off the internet.
     - key: FRONTEND_ADDR
-      value: REPLACE-WITH-STOREFRONT-FRONTEND-ADDRESS
+      value: REPLACE-WITH-FRONTEND-GATEWAY-HOST-FOR-THIS-ENVIRONMENT
     - key: USERS
       value: '5'

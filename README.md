@@ -234,14 +234,24 @@ kubectl apply -R -f namespaces/quality-engineering/
 
 ## Before it will work
 
-1. **`FRONTEND_ADDR` on the load generator is a placeholder, and now a cross-namespace one.**
-   It needs the storefront front end's address. Declaring it as a proper dependency was already
-   awkward; since the simulator moved to `quality-engineering` it is not possible at all at
-   `namespace` visibility, which reaches other projects in the *same* namespace and no further.
-   Dependency references carry no namespace either. Reaching it from another org unit would need
-   `frontend` published at `internal` or `external` visibility, and `external` is what it already
-   has, so the practical options are to point this variable at the public front door or to add
-   `internal`. It stays a plain environment variable until that is decided.
+1. **`FRONTEND_ADDR` on the load generator needs one value per environment, read off the
+   cluster.** The simulator drives the storefront from its own org unit, through the data-plane
+   gateway. That is the only route open to it: `namespace` visibility reaches other projects in
+   the *same* namespace and no further, and a dependency entry cannot name another namespace
+   (`WorkloadConnection` carries `Project`, `Component`, `Name`, `Visibility` and `EnvBindings`,
+   with no namespace field — `api/v1alpha1/workload_types.go:162-187`). So it is a plain variable
+   by necessity, not by preference.
+
+   The value is the front end's gateway host for that environment, published on its
+   `ReleaseBinding` status under `externalURLs` once the cell exists. The showroom's own traffic
+   driver reads it exactly this way (`read-only-setup/demo/estate-traffic.yaml:110-123`). The
+   workload file carries the command to read one.
+
+   **"External" here does not mean reachable from the internet.** App endpoints are published on
+   `*.openchoreoapis.localhost`, which is not publicly resolvable; CoreDNS rewrites that suffix
+   to the data-plane gateway inside the cluster. External visibility means *through the gateway*,
+   and app endpoints are deliberately kept off the internet. The only public surface is the
+   portal.
 
 2. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
    but it is NOT universal across 1.3.1 installs.** Verified both ways:
