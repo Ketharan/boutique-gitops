@@ -235,24 +235,21 @@ kubectl apply -R -f namespaces/boutique/              # projects, components, bi
    `connectionString`, which `cart` binds to `REDIS_ADDR` — correct for a .NET cartservice. Do
    not swap in a passwordless Valkey type.
 
-4. **Nothing is built from source.** Every image is a published upstream tag, so there is no
-   build history. Adding workflows is a later phase — and the first point of the 14 Oct sync, so
-   it is the largest remaining item. Which `kind` the `workflow:` block takes depends on which
-   org unit hosts this: `ClusterWorkflow` for the company-wide planes, namespaced `Workflow` for
-   an org unit with private planes — company-wide, per the topology decision, so every reference
-   stays cluster-scoped.
+4. **Every component is built from source.** All eleven carry a `workflow:` block against
+   [`Ketharan/microservices-demo`](https://github.com/Ketharan/microservices-demo), built by
+   `ClusterWorkflow/dockerfile-builder` on the company-wide workflow plane. `ClusterWorkflow`
+   rather than a namespaced `Workflow` is what keeps every reference in this repository
+   cluster-scoped and the sample clone-able.
 
-   **Ten of the eleven map onto a uniform `src/<service>/` context; `cartservice` does not.**
-   Checked against upstream at `v0.10.5`: every `src/<service>/` carries a `Dockerfile` except
-   `cartservice`, which is .NET and nests one level deeper — `cartservice.sln` at the service
-   root, with the Dockerfile at **`src/cartservice/src/Dockerfile`** alongside
-   `cartservice.csproj`. So the per-component docker `context` cannot simply be
-   `src/<component>` for all eleven; cart needs `src/cartservice/src`. Worth knowing before the
-   build configs are written, because the failure mode is one build out of eleven failing to
-   find a Dockerfile.
+   **Ten take `/src/<service>` as their docker context; `cartservice` does not.** It is .NET and
+   nests a level deeper: `cartservice.sln` at the service root with `src/` and `tests/` beneath
+   it, so its context is `/src/cartservice/src`. All eleven Dockerfile paths were verified to
+   resolve on the fork before being written here. The failure mode that avoids is one build out
+   of eleven failing to find a Dockerfile, deep into a run, looking like an infrastructure
+   problem rather than a path problem.
 
-   Good news for `pending/`: `src/shoppingassistantservice/` **does** carry a Dockerfile, so the
-   assistant is buildable from a fork rather than needing one written.
+   `src/shoppingassistantservice/` also carries a Dockerfile, so the assistant in `pending/` is
+   buildable from this same fork rather than needing one written.
 
 5. **`loadgenerator` stays `deployment/worker` — decided 2026-10-22.** Upstream runs Locust
    continuously, so `worker` is the faithful choice, and three things settled it: it mimics real
