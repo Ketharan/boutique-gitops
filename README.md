@@ -119,13 +119,27 @@ Three plane names in `platform-config/environments.yaml` are showroom-specific, 
 
 | String | Where | What it is |
 |---|---|---|
-| `DataPlane/boutique-eu` | 2 environments | derived regional plane, installer-created |
-| `DataPlane/boutique-us` | 2 environments | derived regional plane, installer-created |
+| `ClusterDataPlane/boutique-eu` | 2 environments | derived regional plane, installer-created |
+| `ClusterDataPlane/boutique-us` | 2 environments | derived regional plane, installer-created |
 | `ClusterDataPlane/company-wide` | 1 environment (`development`) | the showroom's shared cluster plane |
 
-`company-wide` is the easiest of the three to miss, because it looks generic and sits on the one
-environment that is not regional — but it is a showroom object name like the other two. Upstream
-samples use `ClusterDataPlane/default` for all of these.
+All three are `ClusterDataPlane` references, which is the shape every upstream sample uses
+(`ClusterDataPlane/default`). So the cloner's edit is uniform: three names of one kind, rather
+than two kinds with different namespace semantics to understand first. The names are still
+showroom-specific; the shape is not. `company-wide` is the easiest of the three to miss, because
+it looks generic and sits on the one environment that is not regional.
+
+**Why the regional two are cluster-scoped, which is not cosmetic.** `DataPlaneRef` is
+`{Kind, Name}` with no namespace field (`api/v1alpha1/types.go:121-129`), and an unqualified
+reference resolves in the *Environment's own* namespace
+(`api/v1alpha1/environment_types.go:17`). A namespaced `DataPlane/boutique-eu` is therefore
+invisible from any namespace except `boutique`, which would stop a second org unit from ever
+sharing the regional planes. Cluster-scoped, they can be referenced from anywhere.
+
+**Their blast radius is wider than this repository.** Once a second org unit references
+`boutique-eu` and `boutique-us`, those two planes have consumers in more than one namespace.
+Deleting or re-deriving them is no longer a boutique-only change, and nothing else in the repo
+would say so.
 
 To run this elsewhere, repoint those five `dataPlaneRef` blocks at whatever planes you have, or
 create planes under these names. Nothing else in the repository needs editing: every other

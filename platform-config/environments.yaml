@@ -12,11 +12,18 @@
 # new-deployment-pipeline}. The control-plane chart ships the Environment CRD
 # and no Environment instance.
 #
-# PORTABILITY: `boutique-eu` / `boutique-us` are showroom-specific plane names,
-# and the only install-specific strings in this repo. Cloning this elsewhere
-# means either creating two DataPlanes with those names or repointing the five
-# dataPlaneRef blocks at whatever plane you have (upstream samples use
-# ClusterDataPlane/default). See README.md.
+# PORTABILITY: `boutique-eu`, `boutique-us` and `company-wide` are showroom-
+# specific plane names, and the only install-specific strings in this repo. All
+# three are ClusterDataPlane references, which is the shape every upstream sample
+# uses (ClusterDataPlane/default), so cloning this elsewhere means repointing five
+# dataPlaneRef blocks at whatever cluster planes you have. See README.md.
+#
+# The regional two are cluster-scoped rather than namespaced for a reason that is
+# not cosmetic: DataPlaneRef is {Kind, Name} with no namespace field
+# (api/v1alpha1/types.go:121-129), and an unqualified reference resolves in the
+# Environment's OWN namespace (environment_types.go:17). A namespaced
+# DataPlane/boutique-eu is therefore invisible from any namespace but `boutique`,
+# which would stop a second org unit from sharing the regional planes.
 
 ---
 apiVersion: openchoreo.dev/v1alpha1
@@ -48,7 +55,7 @@ metadata:
     openchoreo.dev/description: The European gate. Scales to zero when nobody is using it.
 spec:
   dataPlaneRef:
-    kind: DataPlane
+    kind: ClusterDataPlane
     name: boutique-eu
   isProduction: false
 
@@ -65,7 +72,7 @@ metadata:
     openchoreo.dev/description: The North American gate. Scales to zero when nobody is using it.
 spec:
   dataPlaneRef:
-    kind: DataPlane
+    kind: ClusterDataPlane
     name: boutique-us
   isProduction: false
 
@@ -82,7 +89,7 @@ metadata:
     openchoreo.dev/description: European traffic, kept in region for data residency. Parked on this host.
 spec:
   dataPlaneRef:
-    kind: DataPlane
+    kind: ClusterDataPlane
     name: boutique-eu
   isProduction: true
 
@@ -99,6 +106,6 @@ metadata:
     openchoreo.dev/description: North American traffic and the analytics for it
 spec:
   dataPlaneRef:
-    kind: DataPlane
+    kind: ClusterDataPlane
     name: boutique-us
   isProduction: true
