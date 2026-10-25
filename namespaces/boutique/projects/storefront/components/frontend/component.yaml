@@ -25,3 +25,40 @@ spec:
       docker:
         context: "/src/frontend"
         filePath: "/src/frontend/Dockerfile"
+  # API management on the public front door: RATE LIMITING ONLY.
+  #
+  # endpointName must match a key in this component's Workload endpoints. Its
+  # endpoint key is `http` (workload.yaml), so this is `http`, not the port and
+  # not the component name.
+  #
+  # jwt.enabled is set explicitly rather than left to the module default. This is
+  # the shopper-facing web application and it must never require a token. If JWT
+  # is ever wanted it belongs on something machine-to-machine, and that path has
+  # not been request-tested end to end.
+  #
+  # THE LIMIT IS DELIBERATELY TEN TIMES THE MODULE DEFAULT, AND IT IS LINKED TO
+  # THE TRAFFIC SIMULATOR. The module defaults to 60 tokens per 60s, i.e. 60
+  # requests a minute. The simulator in the quality-engineering org unit runs
+  # five Locust users against this endpoint, which alone sits around that figure
+  # before a single real visitor arrives. At the default, the estate would throttle
+  # its own demo traffic: the shopper journey would show 429s and the cell-diagram
+  # edges would fail intermittently, reading as a fault rather than a feature.
+  #
+  # 600 per minute clears normal and simulated traffic with room to spare, and is
+  # still trivially exceeded on purpose with a curl loop when the limit is what is
+  # being demonstrated. Revisit this number if the simulator's USERS count changes;
+  # see the FRONTEND_ADDR note in the loadgenerator's workload.yaml, which is the
+  # other half of this pairing and the only other place the two are connected.
+  traits:
+    - kind: ClusterTrait
+      name: kgateway-api-management
+      instanceName: frontend-api-management
+      parameters:
+        endpointName: http
+        jwt:
+          enabled: false
+        rateLimiting:
+          enabled: true
+          maxTokens: 600
+          tokensPerFill: 600
+          fillInterval: 60s

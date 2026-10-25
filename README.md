@@ -266,7 +266,21 @@ skip a step the chain would not.
    and app endpoints are deliberately kept off the internet. The only public surface is the
    portal.
 
-2. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
+2. **The `frontend` rate limit must be confirmed as allowed on its component type before it is
+   applied.** `frontend` is a `deployment/web-application`, not a `deployment/service`, and
+   `allowedTraits` is a per-component-type list: a trait present on one type is not usable from
+   another, and a component naming a trait its type does not allow is rejected. The precedent is
+   in `AI-GATEWAY-INSTALL-PLAN.md:51-56`, where the two AI traits had to be patched onto the
+   `service` type by name and the plan records that "without this the traits exist but no
+   component can use them".
+
+   So check `kubectl get clustercomponenttype deployment/web-application -o jsonpath='{.spec.allowedTraits}'`
+   lists `kgateway-api-management` before applying. If it lists it only on the service type, the
+   type needs the same patch. This could not be verified from here: the module is not installed
+   on the local reference cluster, so the trait's name and parameter schema are taken from the
+   cluster lane's report rather than read from source.
+
+3. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
    but it is NOT universal across 1.3.1 installs.** Verified both ways:
 
    - The read-only showroom's own thirteen components reference exactly this scheme —
@@ -283,7 +297,7 @@ skip a step the chain would not.
    is a different question: a `componentType` naming a type that does not exist is admitted and
    fails later at reconcile.
 
-3. **Redis binds in all five environments here**, where the upstream sample binds development
+4. **Redis binds in all five environments here**, where the upstream sample binds development
    only. Drop the `bindings/<env>/` directories you do not want. The `Resource` is named `redis`
    but its type is `ClusterResourceType/valkey` — it has always been Valkey, and the name is
    inherited verbatim from upstream's own sample. The wiring is deliberate: the shipped `valkey`
@@ -291,7 +305,7 @@ skip a step the chain would not.
    `connectionString`, which `cart` binds to `REDIS_ADDR` — correct for a .NET cartservice. Do
    not swap in a passwordless Valkey type.
 
-4. **Every component is built from source.** All eleven carry a `workflow:` block against
+5. **Every component is built from source.** All eleven carry a `workflow:` block against
    [`Ketharan/microservices-demo`](https://github.com/Ketharan/microservices-demo), built by
    `ClusterWorkflow/dockerfile-builder` on the company-wide workflow plane. `ClusterWorkflow`
    rather than a namespaced `Workflow` is what keeps every reference in this repository
@@ -307,7 +321,7 @@ skip a step the chain would not.
    `src/shoppingassistantservice/` also carries a Dockerfile, so the assistant in `pending/` is
    buildable from this same fork rather than needing one written.
 
-5. **`loadgenerator` stays `deployment/worker` — decided 2026-10-22.** Upstream runs Locust
+6. **`loadgenerator` stays `deployment/worker` — decided 2026-10-22.** Upstream runs Locust
    continuously, so `worker` is the faithful choice, and three things settled it: it mimics real
    user patterns; it matches the estate's existing traffic driver, which is a `while true` loop
    and not a cron (`read-only-setup/demo/estate-traffic.yaml:156`); and Hubble cell-diagram edges
