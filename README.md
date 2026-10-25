@@ -232,6 +232,14 @@ kubectl apply -R -f namespaces/quality-engineering/
 `-k` rather than `-R -f` for `platform-config/`, because that directory carries a
 `kustomization.yaml` that `kubectl apply -f` would try to apply as an object and reject.
 
+**Run the steps in that order, and do not start at step 2.** `platform-config/` holds both org
+units' environments and pipelines, so applying it on its own fails with
+`namespaces "quality-engineering" not found` until the namespaces exist. The failure is
+all-or-nothing, so nothing partial is created and a re-run after step 1 succeeds — but it looks
+like a repository defect and is not one. Under Flux the same ordering is enforced by the
+`dependsOn` chain and the question never arises; it is only a hand-run partial apply that can
+skip a step the chain would not.
+
 ## Before it will work
 
 1. **`FRONTEND_ADDR` on the load generator needs one value per environment, read off the
