@@ -266,19 +266,26 @@ skip a step the chain would not.
    and app endpoints are deliberately kept off the internet. The only public surface is the
    portal.
 
-2. **The `frontend` rate limit must be confirmed as allowed on its component type before it is
-   applied.** `frontend` is a `deployment/web-application`, not a `deployment/service`, and
-   `allowedTraits` is a per-component-type list: a trait present on one type is not usable from
-   another, and a component naming a trait its type does not allow is rejected. The precedent is
-   in `AI-GATEWAY-INSTALL-PLAN.md:51-56`, where the two AI traits had to be patched onto the
-   `service` type by name and the plan records that "without this the traits exist but no
+2. **The `frontend` rate limit cannot be applied yet: its component type does not allow the
+   trait.** Confirmed against the installed object on the showroom, not inferred.
+   `kgateway-api-management` is currently listed in `allowedTraits` on the `service` component
+   type only, and `frontend` is a `deployment/web-application`. `allowedTraits` is a per-type
+   list, so until the web-application type is patched, a component naming this trait is
+   rejected. The patch is a one-line change awaiting a decision; the precedent is
+   `AI-GATEWAY-INSTALL-PLAN.md:51-56`, which notes that without it "the traits exist but no
    component can use them".
 
-   So check `kubectl get clustercomponenttype deployment/web-application -o jsonpath='{.spec.allowedTraits}'`
-   lists `kgateway-api-management` before applying. If it lists it only on the service type, the
-   type needs the same patch. This could not be verified from here: the module is not installed
-   on the local reference cluster, so the trait's name and parameter schema are taken from the
-   cluster lane's report rather than read from source.
+   The trait block in `frontend/component.yaml` is correct as written and was checked against
+   the module's own schema: `endpointName` is required and resolves the HTTPRoute, `jwt` and
+   `rateLimiting` take the shape used here. It simply must not be applied before the type allows
+   it. Nine of the eleven components are `deployment/service` and could carry the trait today, if
+   rate limiting is ever wanted somewhere other than the front door.
+
+   **`jwt.enabled` stays `false` here, and that is not a default worth drifting from.** JWT on
+   this showroom is adapted for in-cluster Thunder and is dormant: it has never been
+   request-tested. Enabling it anywhere needs end-to-end validation first (token gives 200,
+   no token gives 401), and never on the storefront front end, which would break the shopper
+   journey.
 
 3. **Component type names use the `deployment/*` scheme, and that is correct for the showroom —
    but it is NOT universal across 1.3.1 installs.** Verified both ways:
