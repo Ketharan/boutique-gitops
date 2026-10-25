@@ -31,8 +31,13 @@ namespaces/<ns>/
     components/<component>/            component.yaml + workload.yaml
     resources/                         managed Resources
     bindings/<env>/                    ResourceReleaseBindings
+catalog/                               teams and people, portal metadata — NOT cluster objects
 pending/                               scaffolded, not applied — see pending/README.md
 ```
+
+`catalog/` and `pending/` are both outside every apply path, for different reasons:
+`pending/` is blocked on images, and `catalog/` holds Backstage entities that are not Kubernetes
+objects at all and that `kubectl apply` would reject. See each directory's `README.md`.
 
 ### Which objects live here, and which never can
 

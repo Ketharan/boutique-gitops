@@ -1,0 +1,80 @@
+# Teams, as Backstage catalog Groups.
+#
+# These are NOT Kubernetes objects. No Kustomization points at catalog/, and
+# `kubectl apply` would reject them. They are catalog metadata, ingested by the
+# portal, and they exist for DISPLAY: showing who owns what. They are not login
+# identities, carry no Thunder accounts and grant no authorization. Visitors
+# browse the showroom anonymously; kiosk-viewer is what governs what they can see.
+#
+# Every name here is invented and every address is on example.com, which RFC 2606
+# reserves for exactly this. No real person, company or domain appears.
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: storefront
+  title: Storefront
+  description: 'The purchase path: browse, cart, checkout and the services behind them'
+spec:
+  type: team
+  profile:
+    displayName: Storefront
+    email: storefront@boutique.example.com
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: merchandising
+  title: Merchandising project
+  description: 'What a shopper is shown: ads, recommendations and the shopping assistant'
+spec:
+  type: team
+  profile:
+    displayName: Merchandising project
+    email: merchandising@boutique.example.com
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: notifications
+  title: Notifications
+  description: Outbound messaging, used by the rest of the estate
+spec:
+  type: team
+  profile:
+    displayName: Notifications
+    email: notifications@boutique.example.com
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: insights
+  title: Insights
+  description: Business questions answered by reading across the estate
+spec:
+  type: team
+  profile:
+    displayName: Insights
+    email: insights@boutique.example.com
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: traffic-sim
+  title: Traffic Simulator
+  description: Synthetic shoppers, so the estate is never idle
+spec:
+  type: team
+  profile:
+    displayName: Traffic Simulator
+    email: traffic-sim@boutique.example.com
+  children: []

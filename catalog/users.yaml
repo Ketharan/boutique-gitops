@@ -1,0 +1,199 @@
+# People, as Backstage catalog Users. Three per team, fifteen in all.
+#
+# Invented, role-shaped and on the reserved example.com domain. See
+# catalog/groups.yaml for why these are display metadata and not identities.
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: storefront-lead
+  description: Lead on the Storefront team
+spec:
+  profile:
+    displayName: Storefront Lead
+    email: storefront-lead@boutique.example.com
+  memberOf:
+    - storefront
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: storefront-engineer
+  description: Engineer on the Storefront team
+spec:
+  profile:
+    displayName: Storefront Engineer
+    email: storefront-engineer@boutique.example.com
+  memberOf:
+    - storefront
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: storefront-sre
+  description: SRE on the Storefront team
+spec:
+  profile:
+    displayName: Storefront SRE
+    email: storefront-sre@boutique.example.com
+  memberOf:
+    - storefront
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: merchandising-lead
+  description: Lead on the Merchandising project team
+spec:
+  profile:
+    displayName: Merchandising project Lead
+    email: merchandising-lead@boutique.example.com
+  memberOf:
+    - merchandising
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: merchandising-engineer
+  description: Engineer on the Merchandising project team
+spec:
+  profile:
+    displayName: Merchandising project Engineer
+    email: merchandising-engineer@boutique.example.com
+  memberOf:
+    - merchandising
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: merchandising-analyst
+  description: Analyst on the Merchandising project team
+spec:
+  profile:
+    displayName: Merchandising project Analyst
+    email: merchandising-analyst@boutique.example.com
+  memberOf:
+    - merchandising
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: notifications-lead
+  description: Lead on the Notifications team
+spec:
+  profile:
+    displayName: Notifications Lead
+    email: notifications-lead@boutique.example.com
+  memberOf:
+    - notifications
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: notifications-engineer
+  description: Engineer on the Notifications team
+spec:
+  profile:
+    displayName: Notifications Engineer
+    email: notifications-engineer@boutique.example.com
+  memberOf:
+    - notifications
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: notifications-sre
+  description: SRE on the Notifications team
+spec:
+  profile:
+    displayName: Notifications SRE
+    email: notifications-sre@boutique.example.com
+  memberOf:
+    - notifications
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: insights-lead
+  description: Lead on the Insights team
+spec:
+  profile:
+    displayName: Insights Lead
+    email: insights-lead@boutique.example.com
+  memberOf:
+    - insights
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: insights-engineer
+  description: Engineer on the Insights team
+spec:
+  profile:
+    displayName: Insights Engineer
+    email: insights-engineer@boutique.example.com
+  memberOf:
+    - insights
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: insights-analyst
+  description: Analyst on the Insights team
+spec:
+  profile:
+    displayName: Insights Analyst
+    email: insights-analyst@boutique.example.com
+  memberOf:
+    - insights
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: traffic-sim-lead
+  description: Lead on the Traffic Simulator team
+spec:
+  profile:
+    displayName: Traffic Simulator Lead
+    email: traffic-sim-lead@boutique.example.com
+  memberOf:
+    - traffic-sim
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: traffic-sim-engineer
+  description: Engineer on the Traffic Simulator team
+spec:
+  profile:
+    displayName: Traffic Simulator Engineer
+    email: traffic-sim-engineer@boutique.example.com
+  memberOf:
+    - traffic-sim
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: traffic-sim-sre
+  description: SRE on the Traffic Simulator team
+spec:
+  profile:
+    displayName: Traffic Simulator SRE
+    email: traffic-sim-sre@boutique.example.com
+  memberOf:
+    - traffic-sim
