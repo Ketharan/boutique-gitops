@@ -25,7 +25,16 @@ spec:
       docker:
         context: "/src/frontend"
         filePath: "/src/frontend/Dockerfile"
-  # API management on the public front door: RATE LIMITING ONLY.
+  # API management on the public front door: rate limiting and response headers.
+  #
+  # WHY THIS COMPONENT AND NO OTHER. The trait attaches a TrafficPolicy to an
+  # HTTPRoute, and only external-visibility endpoints generate one: project and
+  # namespace visibility are service-to-service over direct service DNS, with no
+  # route and so no target. This estate has exactly one HTTPRoute in development,
+  # frontend's. checkout, productcatalog, cart and the rest cannot be targeted by
+  # this module at all. frontend is not a preference, it is the only possibility
+  # on the estate as it stands; business-portal joins it when pending/ ships, and
+  # both are browser UIs.
   #
   # endpointName must match a key in this component's Workload endpoints. Its
   # endpoint key is `http` (workload.yaml), so this is `http`, not the port and
@@ -49,6 +58,19 @@ spec:
   # being demonstrated. Revisit this number if the simulator's USERS count changes;
   # see the FRONTEND_ADDR note in the loadgenerator's workload.yaml, which is the
   # other half of this pairing and the only other place the two are connected.
+  #
+  # AND BE CLEAR WHAT THIS NUMBER IS NOT. Rate limiting a browser UI is
+  # illustrative, not realistic: the bucket counts every asset and XHR of a page
+  # load, so one visitor browsing spends tokens many times faster than one caller
+  # hitting an API would. 600 was chosen to avoid throttling a UI, NOT as a
+  # sensible per-client API budget. Do not copy it onto a service and expect it to
+  # mean the same thing.
+  #
+  # The response headers below are the half that demonstrates cleanly: visible on
+  # `curl -I`, verifiable by anyone, and with no false-trip risk. X-OpenChoreo-Policy
+  # names this trait instance, so the header alone tells a visitor which policy is
+  # active and what to search the repository for. The other two are ordinary
+  # security headers, which is what a real storefront would set.
   traits:
     - kind: ClusterTrait
       name: kgateway-api-management
@@ -62,3 +84,12 @@ spec:
           maxTokens: 600
           tokensPerFill: 600
           fillInterval: 60s
+        addResponseHeaders:
+          enabled: true
+          headers:
+            - name: X-OpenChoreo-Policy
+              value: frontend-api-management
+            - name: X-Content-Type-Options
+              value: nosniff
+            - name: X-Frame-Options
+              value: SAMEORIGIN

@@ -276,10 +276,17 @@ skip a step the chain would not.
    component can use them".
 
    The trait block in `frontend/component.yaml` is correct as written and was checked against
-   the module's own schema: `endpointName` is required and resolves the HTTPRoute, `jwt` and
-   `rateLimiting` take the shape used here. It simply must not be applied before the type allows
-   it. Nine of the eleven components are `deployment/service` and could carry the trait today, if
-   rate limiting is ever wanted somewhere other than the front door.
+   the module's own schema: `endpointName` is required and resolves the HTTPRoute, and `jwt`,
+   `rateLimiting` and `addResponseHeaders` take the shape used here. It simply must not be
+   applied before the type allows it.
+
+   **`frontend` is the only component on this estate the trait can target.** The trait attaches a
+   TrafficPolicy to an HTTPRoute, and only external-visibility endpoints generate one: project
+   and namespace visibility are service-to-service over direct service DNS, with no route and so
+   no target. Development has exactly one HTTPRoute, frontend's. So while nine of the eleven
+   components are `deployment/service` and would be *allowed* to carry the trait, none of them
+   could actually be targeted by it. `business-portal` becomes the second candidate when
+   `pending/` ships, and it is also a browser UI.
 
    **`jwt.enabled` stays `false` here, and that is not a default worth drifting from.** JWT on
    this showroom is adapted for in-cluster Thunder and is dormant: it has never been
