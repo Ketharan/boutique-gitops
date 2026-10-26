@@ -117,8 +117,13 @@ Which of the five actually run is **cluster state, not repo state** — the same
 release pins. The boutique goes up *alongside* the existing showroom estate (`doclet`,
 `latency-lab`, `oncall`, `url-shortener`) rather than replacing it, with capacity made by parking
 rather than deletion, so the likely initial shape is **`development` only, with the four regional
-environments parked** at zero and displayed as "(On Demand)". That is the host's constraint, not
-the model's, and it does not change anything in this directory.
+environments unpopulated. That is the host's constraint, not the model's, and it does not change
+anything in this directory.
+
+The environment display names carry no state suffix. An earlier version labelled them
+"(On Demand)", which read as a promise the `Environment` object does not keep: parking is not
+something the object implements or enforces, so the label described a behaviour nothing in the
+spec delivers. The names say where an environment is, not what it is currently doing.
 
 ### Portability — the only install-specific strings in this repo
 

@@ -51,7 +51,7 @@ metadata:
   labels:
     openchoreo.dev/name: staging-eu
   annotations:
-    openchoreo.dev/display-name: Staging (EU, On Demand)
+    openchoreo.dev/display-name: Staging (EU)
     openchoreo.dev/description: The European gate. Scales to zero when nobody is using it.
 spec:
   dataPlaneRef:
@@ -68,7 +68,7 @@ metadata:
   labels:
     openchoreo.dev/name: staging-us
   annotations:
-    openchoreo.dev/display-name: Staging (US, On Demand)
+    openchoreo.dev/display-name: Staging (US)
     openchoreo.dev/description: The North American gate. Scales to zero when nobody is using it.
 spec:
   dataPlaneRef:
@@ -85,7 +85,7 @@ metadata:
   labels:
     openchoreo.dev/name: production-eu
   annotations:
-    openchoreo.dev/display-name: Production (EU, On Demand)
+    openchoreo.dev/display-name: Production (EU)
     openchoreo.dev/description: European traffic, kept in region for data residency. Parked on this host.
 spec:
   dataPlaneRef:
