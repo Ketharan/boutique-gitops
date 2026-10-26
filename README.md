@@ -250,6 +250,53 @@ like a repository defect and is not one. Under Flux the same ordering is enforce
 `dependsOn` chain and the question never arises; it is only a hand-run partial apply that can
 skip a step the chain would not.
 
+## Recreating the estate from this repository
+
+The estate is meant to be deletable and rebuildable from here. If the two namespaces were
+dropped, `kubectl apply` brings back **66 objects**: 20 `ProjectReleaseBinding`, 11 `Component`,
+11 `Workload`, 10 `Environment`, 5 `ResourceReleaseBinding`, 4 `Project`, 2 `DeploymentPipeline`,
+2 `Namespace` and 1 `Resource`.
+
+**Why a namespace delete is a fair test of this repository.** Every outward reference it makes is
+to a *cluster-scoped* object: `ClusterWorkflow`, `ClusterComponentType`, `ClusterProjectType`,
+`ClusterResourceType`, `ClusterTrait` and `ClusterDataPlane`. There is not one reference to a
+namespaced `DataPlane`, `Workflow` or `ComponentType` anywhere. Cluster-scoped objects are not
+deleted with a namespace, so everything the repo depends on is still there when it is reapplied.
+That is a consequence of two earlier decisions rather than luck: the regional planes became
+cluster-scoped, and this org unit uses the company-wide workflow plane.
+
+The same reasoning covers things done to the cluster by hand that are *not* in this repo: the
+`allowedTraits` appends on the component types and the traits' RBAC are edits to cluster-scoped
+objects, so a namespace deletion does not touch them and they do not belong here.
+
+### Required post-apply step: pin the cart cache
+
+**A fresh apply leaves the cart cache not Ready, and that is by design rather than a fault.**
+Components carry `autoDeploy: true`, so their bindings are seeded automatically. Resources have
+no equivalent, and this repository deliberately commits no `resourceRelease` pin, because the pin
+is promotion state and committing it would make Flux revert every promotion. So the resource
+binding comes up unpinned and waits.
+
+Pin it after applying, per environment that should run:
+
+```bash
+occ resource promote --env development redis
+# or patch spec.resourceRelease on the ResourceReleaseBinding directly
+```
+
+Until that is done, `cart` cannot reach its cache, which presents exactly like the incident the
+chaos driver induces. Anyone debugging a freshly rebuilt estate at 2am should check this first.
+
+### What will not come back, and should not be read as a regression
+
+| Not recreated | Why |
+|---|---|
+| The derived data, workflow and observability planes | Installer-owned. They carry the install's generated cluster-agent CA, so committing them would be wrong everywhere |
+| The `insights` project and `shoppingassistant` | Scaffolded in `pending/`, deliberately outside every apply path |
+| Teams and people | `catalog/` holds Backstage entities, not Kubernetes objects, and needs a catalog location registered with the portal |
+| Authored `container.env` values | An upstream 1.3.1 ComponentType template defect, not a repository gap. Rebuilding changes nothing about it |
+| Freshly built images | The workloads still pin upstream `v0.10.5` tags, so a rebuild comes up on those. Build-from-source is wired but has never been exercised |
+
 ## Before it will work
 
 1. **`FRONTEND_ADDR` on the load generator needs one value per environment, read off the
