@@ -28,3 +28,45 @@ spec:
       docker:
         context: "/src/cartservice/src"
         filePath: "/src/cartservice/src/Dockerfile"
+  # Arms the cart-cache incident. The incident driver starves this component's
+  # valkey and restores it; without a rule watching, the break produces a bad
+  # few minutes and no alert, no incident and nothing for an RCA report.
+  #
+  # KEYED ON A LOG LINE, NOT A STATUS CODE OR POD HEALTH, and both exclusions
+  # are deliberate:
+  #
+  #   - Pod health is useless here. cartservice's Ping() returns true without
+  #     touching Redis (src/cartservice/src/cartstore/RedisCartStore.cs), so the
+  #     pod stays Ready with a dead cache. Nothing in a readiness probe will ever
+  #     notice this break.
+  #   - The string comes from the source, not from guesswork. Every cart path
+  #     wraps a store failure as `RpcException(FailedPrecondition, "Can't access
+  #     cart storage. {ex}")` - AddItem, EmptyCart and GetCart alike - so it is
+  #     the one signal common to all of them.
+  #
+  # TUNED TO A VICTIM THAT SELF-HEALS. The old estate's Postgres victims stay
+  # broken until something restores them, so a wide window costs nothing there.
+  # This cache is in-memory with no PVC: it recovers as soon as the limit is
+  # patched back, and refills from the simulator's own shoppers. A window wider
+  # than the break would never fire; one that never clears would leave a
+  # permanent red mark on a demo that is actually healthy. 1m/1m with a low
+  # threshold fires inside a ~3 minute break and clears on the next evaluation
+  # after the restore.
+  #
+  # The instance name is load-bearing: the incident driver arms this break by
+  # instanceName, so renaming it here detaches the two silently.
+  traits:
+    - kind: ClusterTrait
+      name: observability-alert-rule
+      instanceName: cart-cache-unreachable-alert
+      parameters:
+        description: "Alert when the cart service cannot reach its cache"
+        severity: critical
+        source:
+          type: log
+          query: "Can't access cart storage"
+        condition:
+          window: 1m
+          interval: 1m
+          operator: gt
+          threshold: 3
