@@ -93,17 +93,32 @@ spec:
     # because the wrapper is this component's text and does not depend on the
     # error propagating intact across the gRPC boundary.
     #
-    # TWO RULES FOR WRITING THESE QUERIES, both learned by a rule silently
+    # THREE RULES FOR WRITING THESE QUERIES, all learned by a rule silently
     # matching nothing:
     #
-    # 1. NO APOSTROPHES. A query containing one returns zero through the
-    #    observer's search path even when the text is indexed and findable by
-    #    other searches. An earlier version of this rule used "Can't access cart
-    #    storage" and matched nothing for that reason alone, while a search for
-    #    "storage" returned 227 lines containing the exact phrase. Contractions
-    #    are the usual way in. This query is apostrophe-free.
+    # 1. VERIFY THE EXACT QUERY THROUGH THE OBSERVER, not against opensearch and
+    #    not by reasoning about the analyzer. Opensearch itself is permissive:
+    #    probed directly it matches phrases, CamelCase and mixed case alike
+    #    ("access cart storage" 314 hits, FailedPrecondition 303, case-insensitive).
+    #    The constraint lives in the OBSERVER's query construction — the layer the
+    #    portal and the alert evaluator both go through — and it is lossy in ways
+    #    the index is not.
     #
-    # 2. KEY ON TEXT THE COMPONENT ALWAYS EMITS FOR THE FAILURE CLASS, not on
+    #    **THIS QUERY IS NOT YET PROVEN THROUGH THAT PATH.** It matches at the
+    #    opensearch level (11 hits, low only because this component's node does not
+    #    ship logs), but a clean multi-word phrase has never been tested through the
+    #    observer. Before relying on this rule — in particular when reverting the
+    #    cart workaround — search this exact string in the portal and confirm it
+    #    returns results. If it does not, see rule 3 for why the obvious single-token
+    #    replacements are worse.
+    #
+    # 2. NO APOSTROPHES. A query containing one returns zero through that same
+    #    observer path even when the text is indexed. An earlier version of this
+    #    rule used "Can't access cart storage" and matched nothing for that reason
+    #    alone, while "storage" returned 227 lines containing the exact phrase.
+    #    Contractions are the usual way in. This query is apostrophe-free.
+    #
+    # 3. KEY ON TEXT THE COMPONENT ALWAYS EMITS FOR THE FAILURE CLASS, not on
     #    text that varies with the failure MODE. A deny policy produces
     #    RedisTimeoutException; a stopped service produces
     #    RedisConnectionException / UnableToConnect. Keying on either ties the
