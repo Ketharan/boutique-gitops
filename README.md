@@ -135,6 +135,7 @@ Three plane names in `platform-config/environments.yaml` are showroom-specific, 
 | `ClusterDataPlane/boutique-eu` | 2 environments | derived regional plane, installer-created |
 | `ClusterDataPlane/boutique-us` | 2 environments | derived regional plane, installer-created |
 | `ClusterDataPlane/company-wide` | 1 environment (`development`) | the showroom's shared cluster plane |
+| `FRONTEND_ADDR` on `loadgenerator` | 1 workload | the front end's gateway host for its environment, carrying a generated cell hash |
 
 All three are `ClusterDataPlane` references, which is the shape every upstream sample uses
 (`ClusterDataPlane/default`). So the cloner's edit is uniform: three names of one kind, rather
@@ -155,7 +156,9 @@ Deleting or re-deriving them is no longer a boutique-only change, and nothing el
 would say so.
 
 To run this elsewhere, repoint those five `dataPlaneRef` blocks at whatever planes you have, or
-create planes under these names. Nothing else in the repository needs editing: every other
+create planes under these names, and re-read `FRONTEND_ADDR` from your own cluster. That last one
+is the only value here carrying a *generated* string rather than a chosen name: the `a9492f06`
+suffix is a cell hash, stable for this install and meaningless on another. Nothing else in the repository needs editing: every other
 reference is cluster-scoped and portable (`ClusterComponentType`, `ClusterProjectType`,
 `ClusterResourceType`).
 

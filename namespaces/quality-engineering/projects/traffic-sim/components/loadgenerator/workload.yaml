@@ -30,7 +30,15 @@ spec:
     # Gateway-routed does NOT mean internet-reachable: *.openchoreoapis.localhost
     # is not publicly resolvable, and CoreDNS rewrites the suffix to the
     # data-plane gateway inside the cluster. App endpoints stay off the internet.
+    # Resolved from the cluster 2026-10-27: the frontend's ReleaseBinding status
+    # published this host and port under externalURLs. Only `development` exists,
+    # so there is one value, not one per environment.
+    #
+    # INSTALL-SPECIFIC. The a9492f06 suffix is a generated cell hash - sha256 of
+    # the joined name parts, truncated to 8 (internal/dataplane/kubernetes/name.go).
+    # It is stable for this install and meaningless on any other, so a cloner must
+    # re-read it rather than reuse this. See the coupling table in README.md.
     - key: FRONTEND_ADDR
-      value: REPLACE-WITH-FRONTEND-GATEWAY-HOST-FOR-THIS-ENVIRONMENT
+      value: http-frontend-development-boutique-a9492f06.openchoreoapis.localhost:19080
     - key: USERS
       value: '5'
