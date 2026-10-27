@@ -30,7 +30,15 @@ spec:
         filePath: "/src/cartservice/src/Dockerfile"
   # Arms the cart-cache incident. The incident driver starves this component's
   # valkey and restores it; without a rule watching, the break produces a bad
-  # few minutes and no alert, no incident and nothing for an RCA report.
+  # few minutes and no alert at all.
+  #
+  # This trait is sufficient for the rule to EXIST AND FIRE: applied on its own it
+  # renders an ObservabilityAlertRule that reaches Ready and reports enabled, with
+  # no driver involvement (verified on the cluster 2026-10-27). What it does not do
+  # is route the firing anywhere — the notification channel and the incident/RCA
+  # actions are attached separately, on the component's generated ReleaseBinding,
+  # by the incident driver. So this file gets you an alert; the driver is what turns
+  # that alert into an incident someone can see.
   #
   # KEYED ON A LOG LINE, NOT A STATUS CODE OR POD HEALTH, and both exclusions
   # are deliberate:
