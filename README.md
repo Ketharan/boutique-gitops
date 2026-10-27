@@ -346,14 +346,17 @@ chaos driver induces. Anyone debugging a freshly rebuilt estate at 2am should ch
    and app endpoints are deliberately kept off the internet. The only public surface is the
    portal.
 
-2. **The `frontend` rate limit cannot be applied yet: its component type does not allow the
-   trait.** Confirmed against the installed object on the showroom, not inferred.
-   `kgateway-api-management` is currently listed in `allowedTraits` on the `service` component
-   type only, and `frontend` is a `deployment/web-application`. `allowedTraits` is a per-type
-   list, so until the web-application type is patched, a component naming this trait is
-   rejected. The patch is a one-line change awaiting a decision; the precedent is
-   `AI-GATEWAY-INSTALL-PLAN.md:51-56`, which notes that without it "the traits exist but no
-   component can use them".
+2. **The `frontend` rate limit is applied, and the permission behind it is not reproducible.**
+   `allowedTraits` is a per-component-type list, and `kgateway-api-management` was initially
+   listed on `service` only while `frontend` is a `deployment/web-application`. That has since
+   been patched: the live `deployment/web-application` type carries six traits, each exactly
+   once, `kgateway-api-management` among them (read off the cluster 2026-10-27).
+
+   **The patch itself lives nowhere.** It is a live cluster edit, so a reinstall restores the
+   trait from this repository and loses the permission that lets any component use it. The
+   durable form belongs beside the equivalent for `keda-scaling` at
+   `read-only-setup/scripts/25-keda.sh:76-91`, which is guarded because a JSON-patch `add` to
+   `/spec/allowedTraits/-` is not idempotent and a re-run would list the trait twice.
 
    The trait block in `frontend/component.yaml` is correct as written and was checked against
    the module's own schema: `endpointName` is required and resolves the HTTPRoute, and `jwt`,
