@@ -72,6 +72,42 @@ spec:
   # active and what to search the repository for. The other two are ordinary
   # security headers, which is what a real storefront would set.
   traits:
+    # Arms the cart-cache incident, and it lives HERE rather than on `cart`
+    # because this is the component that writes the signal.
+    #
+    # cartservice does not log its own failure: RedisCartStore wraps a store
+    # error as RpcException(FailedPrecondition, "Can't access cart storage.")
+    # and throws it. That travels to the gRPC CLIENT and never reaches
+    # cartservice's stdout, so a rule on cart would evaluate forever and match
+    # nothing. Verified the hard way — a 25-minute induced outage produced zero
+    # lines from cartservice.
+    #
+    # The frontend does log it. Every cart call it makes is wrapped and reported
+    # through renderHTTPError (frontend/handlers.go:536-538), which does
+    # `log.WithField("error", err).Error("request error")`. The wrapper text is
+    # the stable part: "could not retrieve cart" on the home, product and cart
+    # pages (:74, :165, :261), with "failed to add to cart" on the add path.
+    #
+    # Keyed on the frontend's own wrapper rather than on cartservice's message,
+    # because the wrapper is this component's text and does not depend on the
+    # error propagating intact across the gRPC boundary.
+    #
+    # This is also the better incident to show: "the storefront cannot retrieve
+    # carts" is the user-visible symptom, which is what an RCA should start from.
+    - kind: ClusterTrait
+      name: observability-alert-rule
+      instanceName: cart-cache-unreachable-alert
+      parameters:
+        description: "Alert when the storefront cannot retrieve shopper carts"
+        severity: critical
+        source:
+          type: log
+          query: "could not retrieve cart"
+        condition:
+          window: 1m
+          interval: 1m
+          operator: gt
+          threshold: 3
     - kind: ClusterTrait
       name: kgateway-api-management
       instanceName: frontend-api-management
