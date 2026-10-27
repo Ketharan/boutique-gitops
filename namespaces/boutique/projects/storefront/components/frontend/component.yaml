@@ -75,18 +75,19 @@ spec:
     # Arms the cart-cache incident, and it lives HERE rather than on `cart`
     # because this is the component that writes the signal.
     #
-    # cartservice does not log its own failure: RedisCartStore wraps a store
-    # error as RpcException(FailedPrecondition, "Can't access cart storage.")
-    # and throws it. That travels to the gRPC CLIENT and never reaches
-    # cartservice's stdout, so a rule on cart would evaluate forever and match
-    # nothing. Verified the hard way — a 25-minute induced outage produced zero
-    # lines from cartservice.
+    # Measured during an induced redis outage on 2026-10-27: 73 "request error"
+    # lines here in 55 seconds, against a threshold of 3 in 60. Comfortable.
     #
-    # The frontend does log it. Every cart call it makes is wrapped and reported
-    # through renderHTTPError (frontend/handlers.go:536-538), which does
+    # Every cart call is wrapped and reported through renderHTTPError
+    # (frontend/handlers.go:536-538), which does
     # `log.WithField("error", err).Error("request error")`. The wrapper text is
     # the stable part: "could not retrieve cart" on the home, product and cart
-    # pages (:74, :165, :261), with "failed to add to cart" on the add path.
+    # pages (:74, :165, :261), with "failed to add to cart" on the add path and
+    # "failed to complete the order" on checkout.
+    #
+    # cartservice logs the failure too — 432 lines in the same window, via the
+    # ASP.NET gRPC error middleware — so a rule there would also match. This is
+    # the better of two working options, not the only one.
     #
     # Keyed on the frontend's own wrapper rather than on cartservice's message,
     # because the wrapper is this component's text and does not depend on the

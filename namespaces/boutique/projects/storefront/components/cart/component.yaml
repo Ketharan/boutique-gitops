@@ -28,10 +28,16 @@ spec:
       docker:
         context: "/src/cartservice/src"
         filePath: "/src/cartservice/src/Dockerfile"
-  # NO ALERT RULE HERE, DELIBERATELY. The cart-cache incident is armed on
-  # `frontend` instead, and the reason is worth keeping: cartservice does not
-  # print its own failure. RedisCartStore wraps a store failure as
-  # RpcException(FailedPrecondition, "Can't access cart storage. {ex}") and
-  # THROWS it — the text travels to the gRPC client and is never written to
-  # cartservice's stdout, so a log rule on this component can never match. The
-  # frontend is the thing that logs it. See frontend/component.yaml.
+  # NO ALERT RULE HERE, DELIBERATELY — but not because this component is silent.
+  # It is not: during an induced redis outage cartservice emitted 432 lines of
+  # "Error status code 'FailedPrecondition' with detail 'Can't access cart
+  # storage...'", written by the ASP.NET Core gRPC error middleware rather than
+  # by the service's own code. A rule here WOULD match.
+  #
+  # The rule is on `frontend` because that is the better signal, not the only
+  # one. Three reasons: the frontend logs the user-visible symptom ("could not
+  # retrieve cart") rather than a cache-level detail, which is where an RCA
+  # should start; it keys on its OWN wrapper text, so it does not depend on an
+  # error message surviving the gRPC boundary intact; and the frontend is where
+  # the traffic is, so the rule's threshold is met by the paths the simulator
+  # actually drives. See frontend/component.yaml.
