@@ -6,6 +6,12 @@ metadata:
   labels:
     openchoreo.dev/name: merchandising
   annotations:
+    # Propagated to the generated Backstage entities' spec.owner. Resolution is
+    # component annotation > project annotation > the portal's configured default
+    # (catalog-backend-module-openchoreo, utils/helpers.ts resolveComponentOwner),
+    # so this one line owns every component in the project unless one overrides it.
+    # `default` is the BACKSTAGE namespace, not the Kubernetes one.
+    backstage.io/owner: group:default/merchandising
     openchoreo.dev/display-name: Merchandising project
     openchoreo.dev/description: 'What to show a shopper: ads, recommendations and the shopping assistant'
 spec:

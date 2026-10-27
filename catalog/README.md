@@ -44,14 +44,33 @@ simply have nothing attached until those land.
 event-driven ingestion is deliberately disabled for the public kiosk. An entity missing a few
 seconds after a change is the poll interval, not a failure.
 
-## Before the portal will show any of this
+## Ownership propagates. These files are the wrong vehicle for the people.
 
-These files need to be ingested. The showroom's catalog is populated from the OpenChoreo API by
-a catalog backend module, so a static location has to be registered with the portal before
-`catalog/` is read at all. That is portal configuration and sits installer-side, not here.
+Both halves were settled on 2026-10-27 by reading the portal's catalog modules
+(`openchoreo/backstage-plugins`), and the answers differ.
 
-**Unverified:** whether the generated entities for projects, components and resources can carry
-an owner that points at these groups. The epic asks for ownership down to resource level, and
-the mapping above records the intent, but whether the catalog module propagates an owner onto
-the entities it generates was not confirmed. Check before promising the ownership arrows appear
-in the portal.
+**Ownership: yes, and it is already wired.** `resolveComponentOwner`
+(`catalog-backend-module-openchoreo/src/utils/helpers.ts:39-57`) resolves an entity's owner as
+*component annotation > project annotation > the portal's configured default*, reading
+`backstage.io/owner` off the OpenChoreo CR. So each `project.yaml` in this repository now carries
+`backstage.io/owner: group:default/<team>`, and every component in that project inherits it
+unless a component overrides it. `default` there is the **Backstage** namespace, not the
+Kubernetes one.
+
+**The people: not from these files.** Users and Groups in this portal come from **Thunder IdP**,
+synced by a separate module — `catalog-backend-module-openchoreo-users`, described by its own
+README as a "Thunder User & Group Entity Provider" performing scheduled full syncs. It is not a
+static-location reader. So registering `catalog/` as a catalog location is not how this portal
+gets its teams, and these two files describe the right org chart in a shape this portal does not
+consume.
+
+That leaves a decision rather than a task: create the five groups and fifteen people in Thunder
+so the provider syncs them, or keep these files as the written-down answer to "who owns what"
+and accept that the portal's Teams page is populated by a different mechanism. The first means
+creating fifteen IdP identities for fictional people on a showroom whose visitors are anonymous,
+which is a bigger step than catalog metadata and worth a deliberate decision.
+
+Until groups exist by either route, the `backstage.io/owner` annotations resolve to group
+references that do not yet exist. That is harmless — it is the same state as an unannotated
+entity falling back to the default owner — and it means the annotations can land now and start
+working the moment the groups do.

@@ -6,6 +6,12 @@ metadata:
   labels:
     openchoreo.dev/name: notifications
   annotations:
+    # Propagated to the generated Backstage entities' spec.owner. Resolution is
+    # component annotation > project annotation > the portal's configured default
+    # (catalog-backend-module-openchoreo, utils/helpers.ts resolveComponentOwner),
+    # so this one line owns every component in the project unless one overrides it.
+    # `default` is the BACKSTAGE namespace, not the Kubernetes one.
+    backstage.io/owner: group:default/notifications
     openchoreo.dev/display-name: Notifications
     openchoreo.dev/description: Outbound messaging, shared by other projects
 spec:

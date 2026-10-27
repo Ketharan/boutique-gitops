@@ -16,6 +16,12 @@ metadata:
   labels:
     openchoreo.dev/name: insights
   annotations:
+    # Propagated to the generated Backstage entities' spec.owner. Resolution is
+    # component annotation > project annotation > the portal's configured default
+    # (catalog-backend-module-openchoreo, utils/helpers.ts resolveComponentOwner),
+    # so this one line owns every component in the project unless one overrides it.
+    # `default` is the BACKSTAGE namespace, not the Kubernetes one.
+    backstage.io/owner: group:default/insights
     openchoreo.dev/display-name: Insights
     openchoreo.dev/description: Business-facing questions answered by reading across the estate
 spec:
