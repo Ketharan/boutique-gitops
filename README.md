@@ -272,6 +272,31 @@ The same reasoning covers things done to the cluster by hand that are *not* in t
 `allowedTraits` appends on the component types and the traits' RBAC are edits to cluster-scoped
 objects, so a namespace deletion does not touch them and they do not belong here.
 
+### Tearing it down: leaf-first, never `delete ns`
+
+**Do not remove an org unit with `kubectl delete ns`.** It looks like the obvious inverse of the
+apply and it is not. Learned on this cluster on 2026-10-27: a blanket `delete ns growth` removed
+the org unit's `ObservabilityPlane` before four `renderedreleases` had finalized. Their
+`openchoreo.dev/obsplane-cleanup` finalizer has to resolve that plane in order to deregister
+alert monitors, so with the plane gone it loops on "not found" and the namespace sits
+`Terminating` indefinitely. The plane cannot be recreated inside a `Terminating` namespace, so
+there is no clean way back — the only exit is force-removing the finalizer and accepting orphaned
+monitor registrations.
+
+Delete leaf-first, while the planes those finalizers resolve still exist:
+
+1. `renderedreleases`, then the release bindings, then components, then the project
+2. then the `Environment`s, `DeploymentPipeline` and any namespaced planes
+3. then the namespace itself
+
+Nothing cluster-scoped is touched at any point. The same ordering applies to this estate's two
+namespaces, and the risk is not hypothetical here: `boutique` has an `observability-alert-rule`
+instance on `cart`, which is exactly the kind of object that registers a monitor against a plane.
+
+Worth separating from the CSI hazard, because they present similarly and have nothing in common:
+the stuck-volume problem is a storage-driver defect, this is an ordering mistake. In the 2026-10-27
+removal the cells cleaned up fine and CSI was not involved at all.
+
 ### Required post-apply step: pin the cart cache
 
 **A fresh apply leaves the cart cache not Ready, and that is by design rather than a fault.**
