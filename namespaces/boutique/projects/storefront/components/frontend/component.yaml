@@ -93,6 +93,25 @@ spec:
     # because the wrapper is this component's text and does not depend on the
     # error propagating intact across the gRPC boundary.
     #
+    # TWO RULES FOR WRITING THESE QUERIES, both learned by a rule silently
+    # matching nothing:
+    #
+    # 1. NO APOSTROPHES. A query containing one returns zero through the
+    #    observer's search path even when the text is indexed and findable by
+    #    other searches. An earlier version of this rule used "Can't access cart
+    #    storage" and matched nothing for that reason alone, while a search for
+    #    "storage" returned 227 lines containing the exact phrase. Contractions
+    #    are the usual way in. This query is apostrophe-free.
+    #
+    # 2. KEY ON TEXT THE COMPONENT ALWAYS EMITS FOR THE FAILURE CLASS, not on
+    #    text that varies with the failure MODE. A deny policy produces
+    #    RedisTimeoutException; a stopped service produces
+    #    RedisConnectionException / UnableToConnect. Keying on either ties the
+    #    rule to one break mechanism, so it passes the test we run and misses the
+    #    failure we are modelling. "could not retrieve cart" is emitted on every
+    #    cart read failure regardless of cause, which is the property that makes
+    #    it a good alert rather than a good test assertion.
+    #
     # This is also the better incident to show: "the storefront cannot retrieve
     # carts" is the user-visible symptom, which is what an RCA should start from.
     - kind: ClusterTrait
