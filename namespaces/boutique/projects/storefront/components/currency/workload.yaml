@@ -16,5 +16,11 @@ spec:
     env:
     - key: DISABLE_PROFILER
       value: '1'
+    # OTLP tracing. This image reads COLLECTOR_SERVICE_ADDR (bare host:port,
+    # gRPC) -- NOT OTEL_EXPORTER_OTLP_ENDPOINT, which it ignores silently.
+    # Verified in the fork's source; the Python services default this to
+    # localhost:4317, which is where the port and format come from.
+    - key: COLLECTOR_SERVICE_ADDR
+      value: opentelemetry-collector.openchoreo-observability-plane:4317
     - key: PORT
       value: '7000'
