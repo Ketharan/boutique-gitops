@@ -58,6 +58,12 @@ spec:
     # gRPC) -- NOT OTEL_EXPORTER_OTLP_ENDPOINT, which it ignores silently.
     # Verified in the fork's source; the Python services default this to
     # localhost:4317, which is where the port and format come from.
+    # Tracing is GATED: each of these images only calls its initTracing when
+    # ENABLE_TRACING == "1". Without it COLLECTOR_SERVICE_ADDR is never even
+    # read, and the service emits nothing with no error anywhere. Verified in
+    # the fork across Go, JS and Python (e.g. frontend/main.go:113).
+    - key: ENABLE_TRACING
+      value: '1'
     - key: COLLECTOR_SERVICE_ADDR
       value: opentelemetry-collector.openchoreo-observability-plane:4317
     - key: PORT
