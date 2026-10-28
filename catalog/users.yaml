@@ -47,10 +47,10 @@ apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: merchandising-lead
-  description: Lead on the Merchandising project team
+  description: Lead on the Merchandising Team
 spec:
   profile:
-    displayName: Merchandising project Lead
+    displayName: Merchandising Team Lead
     email: merchandising-lead@boutique.example.com
   memberOf:
     - merchandising
@@ -60,10 +60,10 @@ apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: merchandising-engineer
-  description: Engineer on the Merchandising project team
+  description: Engineer on the Merchandising Team
 spec:
   profile:
-    displayName: Merchandising project Engineer
+    displayName: Merchandising Team Engineer
     email: merchandising-engineer@boutique.example.com
   memberOf:
     - merchandising
@@ -73,10 +73,10 @@ apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: merchandising-analyst
-  description: Analyst on the Merchandising project team
+  description: Analyst on the Merchandising Team
 spec:
   profile:
-    displayName: Merchandising project Analyst
+    displayName: Merchandising Team Analyst
     email: merchandising-analyst@boutique.example.com
   memberOf:
     - merchandising

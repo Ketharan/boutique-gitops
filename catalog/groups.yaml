@@ -28,12 +28,12 @@ apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: merchandising
-  title: Merchandising project
+  title: Merchandising Team
   description: 'What a shopper is shown: ads, recommendations and the shopping assistant'
 spec:
   type: team
   profile:
-    displayName: Merchandising project
+    displayName: Merchandising Team
     email: merchandising@boutique.example.com
   children: []
 

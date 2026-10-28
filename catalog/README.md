@@ -28,7 +28,7 @@ directory, which matters because this repository is public and meant to be clone
 | Team | Group | Owns |
 |---|---|---|
 | Storefront | `storefront` | project storefront, its 7 components, and the cart-cache Resource |
-| Merchandising project | `merchandising` | project merchandising and its components (ad, recommendation; shoppingassistant when it lands) |
+| Merchandising Team | `merchandising` | project merchandising and its components (ad, recommendation; shoppingassistant when it lands) |
 | Notifications | `notifications` | project notifications and its email component |
 | Insights | `insights` | project insights and its 2 components (not yet applied: pending/) |
 | Traffic Simulator | `traffic-sim` | project traffic-sim and its loadgenerator component, in the quality-engineering org unit |

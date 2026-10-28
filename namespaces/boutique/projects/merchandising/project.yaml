@@ -12,7 +12,7 @@ metadata:
     # so this one line owns every component in the project unless one overrides it.
     # `default` is the BACKSTAGE namespace, not the Kubernetes one.
     backstage.io/owner: group:default/merchandising
-    openchoreo.dev/display-name: Merchandising project
+    openchoreo.dev/display-name: Merchandising Team
     openchoreo.dev/description: 'What to show a shopper: ads, recommendations and the shopping assistant'
 spec:
   deploymentPipelineRef:
