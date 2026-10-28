@@ -418,6 +418,19 @@ chaos driver induces. Anyone debugging a freshly rebuilt estate at 2am should ch
    `src/shoppingassistantservice/` also carries a Dockerfile, so the assistant in `pending/` is
    buildable from this same fork rather than needing one written.
 
+   **The builder is buildah, not BuildKit, and that constrains the Dockerfiles.** It refuses to
+   let a Dockerfile redefine a predefined build arg, so upstream's
+   `ARG BUILDPLATFORM=linux/amd64` followed by `FROM --platform=$BUILDPLATFORM` fails at parse
+   time with `attempted to redefine "BUILDPLATFORM": invalid argument` and exit 125 — before a
+   single layer is built, identically for every service. The fork has both lines removed
+   (`6b999d9`, `7b8a169`); the builder stage then targets the native platform, which is what a
+   single-architecture cluster build wants anyway.
+
+   Anyone repointing these components at their own fork of upstream will hit this on the first
+   build of every component. It is worth knowing before concluding the build wiring is wrong,
+   because the error arrives at parse time and names a variable nothing in this repository
+   mentions.
+
 6. **`loadgenerator` stays `deployment/worker` — decided 2026-10-22.** Upstream runs Locust
    continuously, so `worker` is the faithful choice, and three things settled it: it mimics real
    user patterns; it matches the estate's existing traffic driver, which is a `while true` loop
