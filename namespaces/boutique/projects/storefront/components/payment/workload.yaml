@@ -24,6 +24,12 @@ spec:
     # ENABLE_TRACING == "1". Without it COLLECTOR_SERVICE_ADDR is never even
     # read, and the service emits nothing with no error anywhere. Verified in
     # the fork across Go, JS and Python (e.g. frontend/main.go:113).
+    # Without this the OTel SDK falls back to its default resource name and
+    # every Go service reports as "unknown_service:server" — they all collide
+    # under one name in the Traces view. The openchoreo.dev/component attribute
+    # is correct either way; this is for anything keying on service.name.
+    - key: OTEL_SERVICE_NAME
+      value: payment
     - key: ENABLE_TRACING
       value: '1'
     - key: COLLECTOR_SERVICE_ADDR
