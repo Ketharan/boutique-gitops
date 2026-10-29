@@ -46,6 +46,18 @@
 # by the PUBLIC listener on cfg.Server.Port -- so Service/observer, port 8080,
 # path /mcp. Not observer-internal:8081.
 #
+# PORT 8080 IS RIGHT EVEN THOUGH THE SOURCE SAYS 9097, and the reason is worth
+# writing down because the apparent contradiction invites a "fix" that would
+# break this. config.go:405 defaults the server port to 9097 and
+# cmd/observer/main.go:382 comments the public routes as "port 9097" -- but the
+# deployed observer overrides it: ConfigMap/observer-config sets PORT=8080 and
+# INTERNAL_PORT=8081. Verified end to end on the live cluster rather than
+# reasoned from the chart -- Service/observer is port 8080 targetPort http, the
+# container's http port is 8080, and Endpoints/observer reports 8080. So the
+# container really does listen on 8080; this is not 9097 hidden behind a
+# targetPort. If the source default is ever what a reader goes by, they will
+# point this at a port nothing is serving.
+#
 # *** KNOWN GAP, NOT YET SOLVED: THIS IS NECESSARY BUT NOT SUFFICIENT. ***
 # The observer's /mcp is behind a JWT. Its middleware chain is
 # logger -> recovery -> auth401 -> jwt -> handler (handler.go:185-197), and the
