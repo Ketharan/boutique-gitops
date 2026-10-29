@@ -5,17 +5,72 @@
 # "works out what to read, composes the answer" — GCP-DEMO-IMPLEMENTATION.md 4.1.
 # The diagram's `a question about trends` edge runs from here to the AI Gateway.
 #
-# Blocked on the same AI gateway module as the shopping assistant, for the other
-# trait: `ai-mcp-federation`. Per 4.2 this component reads through MCP tools and
-# does NOT query databases directly — OpenChoreo's observer MCP server (17 tools)
-# plus the catalog's own read API, telemetry-only to start. Add, once the module
-# is in, along with MCP_GATEWAY_URL in the workload:
+# Per 4.2 this component reads through MCP tools and does NOT query databases
+# directly — OpenChoreo's observer MCP server plus the catalog's own read API,
+# telemetry-only to start. It needs the `ai-mcp-federation` trait, which injects
+# MCP_GATEWAY_URL. WITHOUT IT THIS COMPONENT DOES NOTHING: every question
+# returns 503. It fails honestly rather than answering wrongly, but the cost is
+# the whole component, not a degraded corner of it.
 #
-#   traits:
-#     - kind: ClusterTrait
-#       name: ai-mcp-federation
-#       instanceName: insights-api-mcp-federation
-#       parameters: {}
+# CORRECTING THIS FILE AND COMMIT e7897ee, which both had it wrong. This is NOT
+# "blocked on the AI gateway module", and it is NOT blocked by the LLM scope
+# decision:
+#
+#   - The trait EXISTS. `ai-mcp-federation` and `ai-llm-routing` are both live,
+#     hand-applied 2026-10-26, and ClusterComponentType/service already lists
+#     both in allowedTraits beside kgateway-api-management. The
+#     ai-gateway-agentgateway chart ships zero ClusterTraits, which is why no
+#     install path reproduces them — but "no install path ships it" is not "the
+#     object does not exist", and e7897ee asserted the second from the first.
+#   - It costs nothing to run. `ai-mcp-federation` creates zero ExternalSecrets:
+#     one AgentgatewayBackend, one HTTPRoute, two AgentgatewayPolicy. The four
+#     provider ExternalSecrets and the live LLM spend belong to `ai-llm-routing`,
+#     a different trait. That separation is why this component was specified with
+#     a fixed question catalogue — it shows MCP federation with no LLM in the path.
+#
+# THREE REAL PRECONDITIONS, none of them scope:
+#   1. `mcpTargets` defaults to []. The block below passes `parameters: {}`,
+#      which would inject MCP_GATEWAY_URL and federate NOTHING. It needs targets
+#      naming the observer's MCP server, so this is not a pure uncomment.
+#   2. `authentication.enabled` defaults to FALSE ("JWT authentication for
+#      incoming MCP clients"), so the trait fronts the federated servers with an
+#      HTTPRoute and no auth unless configured. Confirm what the gateway actually
+#      exposes before a publicly reachable page depends on it.
+#   3. Durability. The trait is live-only, in no repository, so a reinstall
+#      leaves this component referencing a trait that no longer exists. The same
+#      exposure storefront/frontend already carries via kgateway-api-management.
+#
+# UNCOMMENTED 2026-10-29 on Ketharan's instruction, with real mcpTargets.
+# Resolved from the observer's own source and live services rather than guessed:
+# /mcp is registered on the BASE mux (cmd/observer/main.go:327), which is served
+# by the PUBLIC listener on cfg.Server.Port -- so Service/observer, port 8080,
+# path /mcp. Not observer-internal:8081.
+#
+# *** KNOWN GAP, NOT YET SOLVED: THIS IS NECESSARY BUT NOT SUFFICIENT. ***
+# The observer's /mcp is behind a JWT. Its middleware chain is
+# logger -> recovery -> auth401 -> jwt -> handler (handler.go:185-197), and the
+# live observer-auth-config defines both user (groups claim) and service_account
+# (client_id claim) subject types. The mcpTargets schema has NO credential field
+# -- only name/host/port/path/protocol -- and insights-api holds no token. So
+# federation will reach the observer and get 401 until one of:
+#
+#   a) insights-api is given its own Thunder m2m client and sends a bearer
+#      token, which is what observer-kiosk-proxy already does for the browser
+#      panes (it mints client-credentials and adds the header); or
+#   b) the agentgateway is configured to attach credentials to this backend,
+#      if AgentgatewayPolicy can carry them; or
+#   c) the target is pointed at something that already adds the token. NOT the
+#      kiosk proxy as it stands: its allowlist is READ_QUERIES of HTTP read
+#      paths and does not include /mcp, so it would refuse the call.
+#
+# Left in place rather than reverted because it is a required step and the
+# failure is loud and specific -- a 401 naming the tool, surfaced through
+# insights-api's own error path -- not a silent empty page.
+#
+# authentication below stays at its default (disabled). That governs JWT for
+# clients calling INTO the gateway, which is a separate question from the
+# gateway's own credential to the observer, and it is the one Ketharan should
+# answer deliberately before a public page depends on it.
 apiVersion: openchoreo.dev/v1alpha1
 kind: Component
 metadata:
@@ -28,6 +83,17 @@ spec:
     kind: ClusterComponentType
     name: deployment/service
   autoDeploy: true
+  traits:
+    - kind: ClusterTrait
+      name: ai-mcp-federation
+      instanceName: insights-api-mcp-federation
+      parameters:
+        mcpTargets:
+          - name: openchoreo-observer
+            host: observer.openchoreo-observability-plane.svc.cluster.local
+            port: 8080
+            path: /mcp
+            protocol: StreamableHTTP
   # Built from source, not a published tag. ClusterWorkflow rather than a namespaced
   # Workflow because this org unit uses the company-wide planes, which keeps every
   # reference cluster-scoped and the repository clone-able.
