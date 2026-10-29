@@ -6,12 +6,26 @@ metadata:
   labels:
     openchoreo.dev/name: storefront
   annotations:
-    # Propagated to the generated Backstage entities' spec.owner. Resolution is
-    # component annotation > project annotation > the portal's configured default
-    # (catalog-backend-module-openchoreo, utils/helpers.ts resolveComponentOwner),
-    # so this one line owns every component in the project unless one overrides it.
-    # `default` is the BACKSTAGE namespace, not the Kubernetes one.
-    backstage.io/owner: group:default/storefront
+    # backstage.io/owner — GATED 2026-10-28. Commented out deliberately; do not
+    # uncomment until the five Thunder IdP Groups exist.
+    #
+    # Applying it is HARMFUL today. It was applied live and reverted the same
+    # day. This portal syncs Users and Groups from Thunder IdP, and the catalog
+    # holds exactly one Group ("OpenChoreo Users"), so every entity ALREADY
+    # carries a working owner reference — the provider builds one from its
+    # configured default owner (OpenChoreoEntityProvider.ts). This line does not
+    # ADD a reference, it REPOINTS one: eleven working refs become eleven
+    # dangling refs and the catalog's missing-entity banner gets worse, not
+    # better. Groups first, annotations second — never the other way round.
+    # Unblocked by OPEN-ITEMS §C item 1.
+    #
+    # What it does once the Groups exist: propagates to the generated Backstage
+    # entities' spec.owner. Resolution is component annotation > project
+    # annotation > the portal's configured default (helpers.ts
+    # resolveComponentOwner), so this one line owns every component in the
+    # project unless a component overrides it. `default` is the BACKSTAGE
+    # namespace, not the Kubernetes one.
+    # backstage.io/owner: group:default/storefront
     openchoreo.dev/display-name: Storefront
     openchoreo.dev/description: The purchase path - browse, cart, checkout and the services it calls
 spec:

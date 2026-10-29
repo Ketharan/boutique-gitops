@@ -52,10 +52,12 @@ Both halves were settled on 2026-10-27 by reading the portal's catalog modules
 **Ownership: yes, and it is already wired.** `resolveComponentOwner`
 (`catalog-backend-module-openchoreo/src/utils/helpers.ts:39-57`) resolves an entity's owner as
 *component annotation > project annotation > the portal's configured default*, reading
-`backstage.io/owner` off the OpenChoreo CR. So each `project.yaml` in this repository now carries
-`backstage.io/owner: group:default/<team>`, and every component in that project inherits it
-unless a component overrides it. `default` there is the **Backstage** namespace, not the
-Kubernetes one.
+`backstage.io/owner` off the OpenChoreo CR. So a `backstage.io/owner: group:default/<team>` on a
+`project.yaml` owns every component in that project unless a component overrides it. `default`
+there is the **Backstage** namespace, not the Kubernetes one.
+
+**Each `project.yaml` carries that line commented out and gated** — see the next section for
+why. The wiring is correct; the preconditions are not met yet.
 
 **The people: not from these files.** Users and Groups in this portal come from **Thunder IdP**,
 synced by a separate module — `catalog-backend-module-openchoreo-users`, described by its own
@@ -70,7 +72,31 @@ and accept that the portal's Teams page is populated by a different mechanism. T
 creating fifteen IdP identities for fictional people on a showroom whose visitors are anonymous,
 which is a bigger step than catalog metadata and worth a deliberate decision.
 
-Until groups exist by either route, the `backstage.io/owner` annotations resolve to group
-references that do not yet exist. That is harmless — it is the same state as an unannotated
-entity falling back to the default owner — and it means the annotations can land now and start
-working the moment the groups do.
+### The annotations are gated, and the reasoning that said otherwise was wrong
+
+This README previously argued that until the groups exist the annotations "resolve to group
+references that do not yet exist", that this is "harmless — the same state as an unannotated
+entity falling back to the default owner", and that they could therefore "land now and start
+working the moment the groups do". **That was wrong, it was tested live on 2026-10-28, and the
+annotations were applied and then reverted.**
+
+The error is the word *same*. An unannotated entity falls back to the portal's configured
+default owner, and that group **exists** — it is the one rendering as "OpenChoreo Users". An
+annotated entity points at a group that **does not**. Those are not the same state: one is a
+working reference, the other is a dangling one. So the annotations do not *add* ownership
+information to entities that had none, they *repoint* references that were already resolving.
+Applying them converted eleven working refs into eleven dangling ones and made the catalog's
+missing-entity banner worse.
+
+Confirmed live after the apply: the banner on `frontend` listed exactly one missing entity,
+`group:default/storefront`, and the owner field rendered as the raw string `storefront` where it
+had previously rendered the humanised "OpenChoreo Users".
+
+So every `backstage.io/owner` line in this repository is **commented out**, with the reason
+attached at each site. They are correct annotations waiting on a precondition, not dead code:
+uncomment them in the same change that creates the five Thunder Groups, never before. The
+sequencing is Groups first, annotations second.
+
+The general shape of the mistake is worth keeping, because it is cheap to repeat: "this change
+is inert until its dependency exists" is only true if the thing it replaces was *also* inert.
+Here it was not — the default was doing real work, and the change displaced it.

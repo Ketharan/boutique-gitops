@@ -321,9 +321,9 @@ chaos driver induces. Anyone debugging a freshly rebuilt estate at 2am should ch
 |---|---|
 | The derived data, workflow and observability planes | Installer-owned. They carry the install's generated cluster-agent CA, so committing them would be wrong everywhere |
 | The `insights` project and `shoppingassistant` | Scaffolded in `pending/`, deliberately outside every apply path |
-| Teams and people | `catalog/` holds Backstage entities, not Kubernetes objects, and needs a catalog location registered with the portal |
+| Teams and people | `catalog/` holds Backstage entities, not Kubernetes objects. And a catalog location would not help: this portal syncs Users and Groups from **Thunder IdP**, not from a static location reader — see `catalog/README.md`. The five Groups do not exist, which is also why every `backstage.io/owner` annotation in this repository is commented out |
 | Authored `container.env` values | An upstream 1.3.1 ComponentType template defect, not a repository gap. Rebuilding changes nothing about it |
-| Freshly built images | The workloads still pin upstream `v0.10.5` tags, so a rebuild comes up on those. Build-from-source is wired but has never been exercised |
+| Freshly built images | The workloads pin upstream `v0.10.5` tags, so a rebuild comes up on those and the build driver replaces them afterwards. Build-from-source **has** been exercised since this was written — every component has built green from the fork — so the committed tag is a bootstrap value, not an untested path. It is also why these files must never be `kubectl apply`-d wholesale: that reverts `spec.container.image` from the built tag to the upstream one, with a successful-looking result |
 
 ## Before it will work
 
