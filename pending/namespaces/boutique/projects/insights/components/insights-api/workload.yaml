@@ -25,5 +25,50 @@ spec:
     env:
     - key: PORT
       value: '8080'
+    # The query scope, pinned EXPLICITLY rather than left to the service's own
+    # defaults. The defaults are the same two values, so this changes nothing
+    # today -- it is here to make the coupling visible, because an invisible
+    # default that is load-bearing is the shape of trap this estate keeps
+    # finding.
+    #
+    # READ THIS BEFORE ADDING A SECOND ProjectReleaseBinding. One Workload is
+    # shared by every binding, so these are ONE value for ALL environments. A
+    # second binding on its own would stand up an instance reporting
+    # development's numbers while sitting in another environment -- and
+    # production-us is a fully running environment, so that is live wrong data,
+    # not an empty page.
+    #
+    # THE REMEDY EXISTS, and it is one field:
+    #   ReleaseBinding.spec.workloadOverrides.container.env
+    # (releasebinding_types.go:189 / ContainerOverride.Env :142). ReleaseBinding
+    # carries a required Environment, so it is per-environment by construction,
+    # and the merge is override-wins BY KEY -- mergeEnvConfigs in
+    # internal/pipeline/component/context/workload.go:30 keys the overrides and
+    # replaces any base key that matches. So a per-environment override of
+    # INSIGHTS_ENVIRONMENT does exactly the right thing.
+    #
+    # WHY IT IS STILL development-ONLY TODAY: this repository authors
+    # ProjectReleaseBindings only (25 of them, zero component ReleaseBindings).
+    # Component ReleaseBindings are DERIVED by the controllers, so the override
+    # cannot be committed here -- it has to be patched onto the derived object,
+    # the same practice as the incident driver's traitEnvironmentConfigs patch.
+    # The remedy sits outside the GitOps path, which is not the same as the
+    # platform being unable to express it.
+    #
+    # A PATCH SURVIVES RECONCILE, checked in source rather than assumed: on an
+    # existing ReleaseBinding the component controller mutates only
+    # Spec.ReleaseName, and only when it differs
+    # (internal/controller/component/controller.go:796-806), carrying everything
+    # else through. Nothing live uses the field yet (0 of 31 bindings), so it is
+    # unexercised in practice -- worth one real patch-and-watch before relying
+    # on it.
+    #
+    # NOT the downward API: the pod does carry openchoreo.dev/environment as a
+    # label, but Workload.spec.container.env.valueFrom accepts only
+    # secretKeyRef, so there is no fieldRef to read it with.
+    - key: INSIGHTS_NAMESPACE
+      value: boutique
+    - key: INSIGHTS_ENVIRONMENT
+      value: development
     # MCP_GATEWAY_URL is supplied by the ai-mcp-federation trait once the AI
     # gateway module is installed; do not hardcode it here.

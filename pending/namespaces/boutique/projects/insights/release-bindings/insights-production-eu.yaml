@@ -1,17 +1,48 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
+# GATED 2026-10-29 — bound to `development` only, deliberately. Do not simply
+# uncomment this file; read why first, because activating it makes a running
+# environment report another environment's numbers.
 #
-# No `spec.projectRelease` — the pin belongs to promotion, not to git.
-apiVersion: openchoreo.dev/v1alpha1
-kind: ProjectReleaseBinding
-metadata:
-  name: insights-production-eu
-  namespace: boutique
-  labels:
-    openchoreo.dev/project: insights
-    openchoreo.dev/environment: production-eu
-spec:
-  owner:
-    projectName: insights
-  environment: production-eu
+# insights-api takes its query scope from INSIGHTS_ENVIRONMENT, which defaults
+# to "development". One Workload is shared by every ProjectReleaseBinding, so an
+# instance bound here would query DEVELOPMENT's data while sitting in
+# production-eu. Not hypothetical: production-us is a fully running
+# environment (8/8 pods in the storefront cell, verified 2026-10-29), so this
+# would be live wrong data rather than an empty page. Empty is survivable;
+# confidently wrong numbers on a public showroom are not.
+#
+# WHY IT CANNOT BE FIXED PER-ENVIRONMENT TODAY. The platform does inject the
+# identity -- every workload pod carries openchoreo.dev/environment,
+# openchoreo.dev/namespace and openchoreo.dev/project as labels -- but
+# Workload.spec.container.env.valueFrom accepts ONLY secretKeyRef. There is no
+# fieldRef, so the Kubernetes downward API cannot be reached from the Workload
+# spec and those labels cannot be read into an env var. Hardcoding
+# INSIGHTS_ENVIRONMENT in the workload does not help either: one shared Workload
+# means one value for all five bindings, which is the same bug made visible.
+#
+# WHAT WOULD UNBLOCK IT, either one:
+#   - fieldRef support in Workload.spec.container.env.valueFrom, after which
+#     each instance reads its own environment label; or
+#   - insights-api reading its own pod labels through the Kubernetes API, which
+#     needs a ServiceAccount with pod read -- real privilege to grant something
+#     fronting a public anonymous page, for a scope string.
+#
+# Until then the five-environment story is told by the OTHER projects, which do
+# not have this coupling.
+
+# # NOT APPLIED. This file sits under pending/ because the thing it describes does
+# # not exist yet — see pending/README.md for what unblocks it and the exact
+# # `git mv` that activates it. No Flux Kustomization points at pending/.
+# #
+# # No `spec.projectRelease` — the pin belongs to promotion, not to git.
+# apiVersion: openchoreo.dev/v1alpha1
+# kind: ProjectReleaseBinding
+# metadata:
+#   name: insights-production-eu
+#   namespace: boutique
+#   labels:
+#     openchoreo.dev/project: insights
+#     openchoreo.dev/environment: production-eu
+# spec:
+#   owner:
+#     projectName: insights
+#   environment: production-eu
