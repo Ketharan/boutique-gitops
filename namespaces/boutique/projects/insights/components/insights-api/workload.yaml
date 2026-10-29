@@ -66,5 +66,23 @@ spec:
       value: boutique
     - key: INSIGHTS_ENVIRONMENT
       value: development
+    # Track A credential (option (a) from the component.yaml KNOWN GAP block):
+    # insights-api's own m2m client, sent as a bearer token to the observer's
+    # /mcp so federation gets 200 instead of 401. MCP_CLIENT_ID is the kiosk
+    # client; MCP_CLIENT_SECRET resolves from the SecretReference
+    # insights-mcp-kiosk (../../resources/insights-mcp-kiosk.yaml), which the
+    # releasebinding controller turns into an ExternalSecret -> OpenBao-backed
+    # env-secrets Secret. secretKeyRef.name is the SecretReference's NAME; the
+    # releasebinding controller keys off it by name at render time. Verified
+    # live 2026-10-29 (initialize + tools/list both 200). Both entries were
+    # live-only until this commit -- without them a reinstall leaves insights-api
+    # with no credential and the observer 401s.
+    - key: MCP_CLIENT_ID
+      value: openchoreo-kiosk-client
+    - key: MCP_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: insights-mcp-kiosk
+          key: clientSecret
     # MCP_GATEWAY_URL is supplied by the ai-mcp-federation trait once the AI
     # gateway module is installed; do not hardcode it here.

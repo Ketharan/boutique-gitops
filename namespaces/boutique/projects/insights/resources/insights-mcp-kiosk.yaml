@@ -1,0 +1,44 @@
+# Track A credential — the m2m client secret insights-api sends to the observer's
+# /mcp endpoint. This is option (a) from the KNOWN GAP block in
+# ../components/insights-api/component.yaml: insights-api holds its own client
+# credentials and attaches a bearer token, exactly as observer-kiosk-proxy does
+# for the browser panes. Without this the observer answers /mcp with 401 and the
+# component returns 503 on every question.
+#
+# HOW IT IS CONSUMED: the releasebinding controller collects SecretReferences by
+# NAME while rendering the component — it is referenced from
+# ../components/insights-api/workload.yaml (env MCP_CLIENT_SECRET.valueFrom.
+# secretKeyRef.name: insights-mcp-kiosk). That reconcile produces an
+# ExternalSecret in the dataplane namespace (SecretSynced=True), which ESO
+# resolves against ClusterSecretStore/default (OpenBao-backed) and materialises
+# as the env-secrets k8s Secret the pod mounts. Verified green end-to-end on the
+# live cluster 2026-10-29: /mcp initialize + tools/list both HTTP 200.
+#
+# WHERE THE VALUE COMES FROM: OpenBao KV at secret/observer-kiosk-client, key
+# clientSecret — the same secret observer-kiosk-proxy uses. The installer seeds
+# it (read-only-setup scripts/20-openchoreo.sh, "Seeding the kiosk credential"),
+# so the value side is already durable; THIS file is what was missing.
+#
+# FLUX IS NOT INSTALLED (flux/gitrepository.yaml still has REPLACE-ME), so
+# committing this makes it REPRODUCIBLE, not auto-applied — it is hand-applied
+# like the rest of this repo.
+#
+# Spec kept faithful to the live object (no owner field — SecretReference has
+# none; refreshInterval 1h is the live default).
+apiVersion: openchoreo.dev/v1alpha1
+kind: SecretReference
+metadata:
+  name: insights-mcp-kiosk
+  namespace: boutique
+spec:
+  refreshInterval: 1h
+  targetPlane:
+    kind: ClusterDataPlane
+    name: company-wide
+  data:
+    - secretKey: clientSecret
+      remoteRef:
+        key: observer-kiosk-client
+        property: clientSecret
+  template:
+    type: Opaque
