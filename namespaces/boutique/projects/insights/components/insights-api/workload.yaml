@@ -17,7 +17,7 @@ spec:
       visibility:
       - project
   container:
-    image: host.k3d.internal:10082/boutique-insights-insights-api:v1-3676cf0d
+    image: host.k3d.internal:10082/boutique-insights-insights-api:v1-af273ff9
     env:
     - key: PORT
       value: '8080'
