@@ -16,7 +16,6 @@ the cluster only runs what can actually run.
 | Scaffold | Blocked on |
 |---|---|
 | `merchandising/components/shoppingassistant/` | (a) a forked image — upstream v0.10.5 publishes **no** `shoppingassistantservice` image, verified against `release/kubernetes-manifests.yaml` at that tag; (b) the `ai-llm-routing` ClusterTrait, which ships with the AI gateway module, not OpenChoreo 1.3.1; (c) the open fork-vs-simpler-NL-search decision (`GCP-DEMO-IMPLEMENTATION.md` 0.2) |
-| `projects/insights/` — `business-portal`, `insights-api`, 5 release bindings | new code for both components, plus the `ai-mcp-federation` ClusterTrait from the same module |
 
 Neither AI trait exists in `openchoreo/openchoreo@v1.3.1` (`install/`, `samples/` — checked).
 `AI-GATEWAY-INSTALL-PLAN.md` in the task directory is still *"Nothing applied. Awaiting
@@ -27,11 +26,11 @@ approval."*, and its step 4 must also patch the `service` ClusterComponentType's
 
 Paths mirror their destinations exactly, so activation is a move and nothing else.
 
-**Insights project** — once both images exist:
-
-```sh
-git mv pending/namespaces/boutique/projects/insights namespaces/boutique/projects/insights
-```
+**Insights project — SHIPPED 2026-10-29.** Both images were built
+(`v1-3676cf0d`) and the project now lives at
+`namespaces/boutique/projects/insights/`. It is bound to `development` only;
+the four other binding files travelled with it, gated and inert, and carry
+their own reasoning. Nothing in this section applies to it any more.
 
 **Shopping assistant** — once the fork is built and the gateway module is installed:
 

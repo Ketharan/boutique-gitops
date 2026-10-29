@@ -5,7 +5,7 @@
 # insights-api takes its query scope from INSIGHTS_ENVIRONMENT, which defaults
 # to "development". One Workload is shared by every ProjectReleaseBinding, so an
 # instance bound here would query DEVELOPMENT's data while sitting in
-# staging-eu. Not hypothetical: production-us is a fully running
+# staging-us. Not hypothetical: production-us is a fully running
 # environment (8/8 pods in the storefront cell, verified 2026-10-29), so this
 # would be live wrong data rather than an empty page. Empty is survivable;
 # confidently wrong numbers on a public showroom are not.
@@ -29,20 +29,16 @@
 # Until then the five-environment story is told by the OTHER projects, which do
 # not have this coupling.
 
-# # NOT APPLIED. This file sits under pending/ because the thing it describes does
-# # not exist yet — see pending/README.md for what unblocks it and the exact
-# # `git mv` that activates it. No Flux Kustomization points at pending/.
-# #
 # # No `spec.projectRelease` — the pin belongs to promotion, not to git.
 # apiVersion: openchoreo.dev/v1alpha1
 # kind: ProjectReleaseBinding
 # metadata:
-#   name: insights-staging-eu
+#   name: insights-staging-us
 #   namespace: boutique
 #   labels:
 #     openchoreo.dev/project: insights
-#     openchoreo.dev/environment: staging-eu
+#     openchoreo.dev/environment: staging-us
 # spec:
 #   owner:
 #     projectName: insights
-#   environment: staging-eu
+#   environment: staging-us

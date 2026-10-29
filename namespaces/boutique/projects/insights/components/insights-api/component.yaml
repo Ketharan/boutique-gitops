@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # "works out what to read, composes the answer" — GCP-DEMO-IMPLEMENTATION.md 4.1.
 # The diagram's `a question about trends` edge runs from here to the AI Gateway.
 #

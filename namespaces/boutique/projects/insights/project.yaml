@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # The fifth project. Its own project rather than a component of storefront or
 # merchandising because the questions it answers span both, so no single domain
 # owns them (GCP-DEMO-IMPLEMENTATION.md 4.1).

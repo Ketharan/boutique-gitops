@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # `project` visibility: the only caller is business-portal, in this same project.
 # No cross-project endpoint dependencies — reading across the estate happens
 # through MCP tools, not by calling the other projects' services.
@@ -21,7 +17,7 @@ spec:
       visibility:
       - project
   container:
-    image: REPLACE-ME/insights-api:REPLACE-ME
+    image: host.k3d.internal:10082/boutique-insights-insights-api:v1-3676cf0d
     env:
     - key: PORT
       value: '8080'

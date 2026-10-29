@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # No `spec.projectRelease` — the pin belongs to promotion, not to git.
 apiVersion: openchoreo.dev/v1alpha1
 kind: ProjectReleaseBinding

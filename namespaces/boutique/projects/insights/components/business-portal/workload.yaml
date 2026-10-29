@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # `external` visibility, like storefront's frontend: this is the second front door,
 # the one Business users arrive at. Port is this component's own choice — it is new
 # code — so 8080 follows the repo's other web application rather than upstream.
@@ -29,7 +25,7 @@ spec:
       envBindings:
         address: INSIGHTS_API_ADDR
   container:
-    image: REPLACE-ME/business-portal:REPLACE-ME
+    image: host.k3d.internal:10082/boutique-insights-business-portal:v1-3676cf0d
     env:
     - key: PORT
       value: '8080'

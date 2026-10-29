@@ -1,7 +1,3 @@
-# NOT APPLIED. This file sits under pending/ because the thing it describes does
-# not exist yet — see pending/README.md for what unblocks it and the exact
-# `git mv` that activates it. No Flux Kustomization points at pending/.
-#
 # "where someone types a question" — GCP-DEMO-IMPLEMENTATION.md 4.1. The diagram's
 # `how are we doing?` edge arrives here from the Business users actor.
 apiVersion: openchoreo.dev/v1alpha1
