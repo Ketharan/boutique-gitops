@@ -16,3 +16,22 @@ spec:
     kind: ClusterComponentType
     name: deployment/web-application
   autoDeploy: true
+  # Built from source, not a published tag. ClusterWorkflow rather than a namespaced
+  # Workflow because this org unit uses the company-wide planes, which keeps every
+  # reference cluster-scoped and the repository clone-able.
+  #
+  # Without this block there is no build-from-source config at all: the component
+  # would sit waiting for an image that nothing ever produces, with no error to
+  # say why. Modelled on storefront/frontend's, which is the one known-good copy.
+  workflow:
+    kind: ClusterWorkflow
+    name: dockerfile-builder
+    parameters:
+      repository:
+        url: "https://github.com/Ketharan/microservices-demo"
+        revision:
+          branch: "main"
+        appPath: "/src"
+      docker:
+        context: "/src/business-portal"
+        filePath: "/src/business-portal/Dockerfile"
